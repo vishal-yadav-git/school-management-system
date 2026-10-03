@@ -1,0 +1,15 @@
+<form method="POST" action="{% url 'confirm_import' %}">
+
+    {% csrf_token %}
+
+    <input
+        type="hidden"
+        name="import_token"
+        value="{{ import_token }}"
+    >
+
+    <button type="submit">
+        ✅ Confirm & Import
+    </button>
+
+</form>

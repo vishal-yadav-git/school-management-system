@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Import Complete</title>
+
+    <style>
+
+        body {
+            font-family: Arial;
+            background: #f4f6f9;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .success {
+            font-size: 50px;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .number {
+            font-size: 30px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .green {
+            color: #16a34a;
+        }
+
+        .yellow {
+            color: #ca8a04;
+        }
+
+        .red {
+            color: #dc2626;
+        }
+
+        .errors {
+            background: white;
+            padding: 25px;
+            margin-top: 25px;
+            border-radius: 10px;
+        }
+
+        .buttons {
+            margin-top: 25px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 14px 20px;
+            text-decoration: none;
+            border-radius: 6px;
+            color: white;
+            background: #2563eb;
+        }
+
+        .green-btn {
+            background: #16a34a;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+    <div class="header">
+
+        <div class="success">
+            ✅
+        </div>
+
+        <h1>
+            Import Complete
+        </h1>
+
+        <p>
+            {{ filename }}
+        </p>
+
+        <p>
+            School: <strong>{{ school.name }}</strong>
+        </p>
+
+    </div>
+
+
+    <div class="cards">
+
+
+        <div class="card">
+
+            Total
+
+            <div class="number">
+                {{ total }}
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            Imported
+
+            <div class="number green">
+                {{ imported }}
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            Duplicate
+
+            <div class="number yellow">
+                {{ duplicate }}
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            Errors
+
+            <div class="number red">
+                {{ errors|length }}
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    {% if errors %}
+
+        <div class="errors">
+
+            <h2>
+                ⚠️ Import Errors
+            </h2>
+
+            <br>
+
+            {% for error in errors %}
+
+                <p>
+                    {{ error }}
+                </p>
+
+            {% endfor %}
+
+        </div>
+
+    {% endif %}
+
+
+    <div class="buttons">
+
+        <a
+            href="/admin/academics/student/"
+            class="btn green-btn"
+        >
+            👨‍🎓 View Students
+        </a>
+
+
+        <a
+            href="{% url 'import_excel' %}"
+            class="btn"
+        >
+            📊 Import Another File
+        </a>
+
+
+        <a
+            href="{% url 'admin_dashboard' %}"
+            class="btn"
+        >
+            🏠 Dashboard
+        </a>
+
+    </div>
+
+
+</div>
+
+
+</body>
+
+</html>

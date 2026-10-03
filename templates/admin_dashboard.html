@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>Main Admin Dashboard</title>
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f6f9;
+        }
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 240px;
+            height: 100vh;
+            background: #1e293b;
+            color: white;
+            padding: 25px 15px;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .sidebar a {
+            display: block;
+            color: white;
+            text-decoration: none;
+            padding: 13px 15px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+        }
+
+        .sidebar a:hover {
+            background: #334155;
+        }
+
+        .logout {
+            margin-top: 30px;
+            background: #dc2626;
+        }
+
+        .main {
+            margin-left: 240px;
+            padding: 30px;
+        }
+
+        .topbar {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+        }
+
+        .topbar h1 {
+            color: #1e293b;
+        }
+
+        .topbar p {
+            margin-top: 5px;
+            color: #64748b;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        }
+
+        .card h3 {
+            color: #64748b;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #1e293b;
+        }
+
+        .section {
+            margin-top: 30px;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+        }
+
+        .section h2 {
+            margin-bottom: 20px;
+        }
+
+        .buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .btn {
+            background: #2563eb;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background: #1d4ed8;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+
+<!-- SIDEBAR -->
+
+<div class="sidebar">
+
+    <h2>School ERP</h2>
+
+    <a href="{% url 'admin_dashboard' %}">
+        🏠 Dashboard
+    </a>
+
+    <a href="/admin/schools/school/">
+        🏫 Schools
+    </a>
+
+    <a href="/admin/accounts/user/">
+        👤 Users
+    </a>
+
+    <a href="/admin/academics/teacher/">
+        👨‍🏫 Teachers
+    </a>
+
+    <a href="/admin/academics/student/">
+        🎓 Students
+    </a>
+
+    <a href="/admin/academics/schoolclass/">
+        📚 Classes
+    </a>
+
+    <a href="/admin/academics/subject/">
+        📖 Subjects
+    </a>
+
+    <a href="{% url 'import_excel' %}">
+        📊 Excel Import
+    </a>
+
+    <a href="{% url 'logout' %}" class="logout">
+        🚪 Logout
+    </a>
+
+</div>
+
+
+<!-- MAIN -->
+
+<div class="main">
+
+
+    <div class="topbar">
+
+        <h1>Main Admin Dashboard</h1>
+
+        <p>
+            Welcome, {{ request.user.username }}
+        </p>
+
+    </div>
+
+
+    <!-- STATISTICS -->
+
+    <div class="cards">
+
+
+        <div class="card">
+
+            <h3>Total Schools</h3>
+
+            <div class="number">
+                {{ total_schools }}
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>Total Principals</h3>
+
+            <div class="number">
+                {{ total_principals }}
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>Total Teachers</h3>
+
+            <div class="number">
+                {{ total_teachers }}
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>Total Students</h3>
+
+            <div class="number">
+                {{ total_students }}
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>Total Classes</h3>
+
+            <div class="number">
+                {{ total_classes }}
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>Total Subjects</h3>
+
+            <div class="number">
+                {{ total_subjects }}
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- QUICK ACTIONS -->
+
+    <div class="section">
+
+        <h2>Quick Actions</h2>
+
+        <div class="buttons">
+
+            <a
+                href="/admin/schools/school/add/"
+                class="btn"
+            >
+                + Add School
+            </a>
+
+
+            <a
+                href="/admin/accounts/user/add/"
+                class="btn"
+            >
+                + Add User
+            </a>
+
+
+            <a
+                href="/admin/academics/teacher/add/"
+                class="btn"
+            >
+                + Add Teacher
+            </a>
+
+
+            <a
+                href="/admin/academics/student/add/"
+                class="btn"
+            >
+                + Add Student
+            </a>
+
+
+            <a
+                href="/admin/academics/schoolclass/add/"
+                class="btn"
+            >
+                + Add Class
+            </a>
+
+
+            <a
+                href="/admin/academics/subject/add/"
+                class="btn"
+            >
+                + Add Subject
+            </a>
+
+
+            <a
+                href="{% url 'import_excel' %}"
+                class="btn"
+            >
+                📊 Import Excel
+            </a>
+
+        </div>
+
+    </div>
+
+
+</div>
+
+</body>
+</html>

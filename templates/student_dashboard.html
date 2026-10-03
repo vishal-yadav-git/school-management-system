@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Student Dashboard</title>
+</head>
+
+<body>
+
+    <h1>Student Dashboard</h1>
+
+    <h2>
+        Welcome {{ request.user.first_name }}
+    </h2>
+
+    <hr>
+
+    <ul>
+        <li>My Profile</li>
+        <li>My Attendance</li>
+        <li>My Marks</li>
+        <li>My Subjects</li>
+        <li>My Timetable</li>
+        <li>Fees</li>
+    </ul>
+
+    <br>
+
+    <a href="{% url 'logout' %}">
+        Logout
+    </a>
+
+</body>
+
+</html>

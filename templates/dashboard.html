@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <title>Dashboard</title>
+
+</head>
+
+<body>
+
+    <h1>School Management Dashboard</h1>
+
+    <h2>
+        Welcome {{ request.user.first_name }}
+    </h2>
+
+    <p>
+        Username:
+        {{ request.user.username }}
+    </p>
+
+    <p>
+        Role:
+        {{ request.user.role }}
+    </p>
+
+    <p>
+        Mobile:
+        {{ request.user.mobile }}
+    </p>
+
+    <a href="{% url 'logout' %}">
+        Logout
+    </a>
+
+</body>
+
+</html>

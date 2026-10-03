@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Parent Dashboard</title>
+</head>
+
+<body>
+
+    <h1>Parent Dashboard</h1>
+
+    <h2>
+        Welcome {{ request.user.first_name }}
+    </h2>
+
+    <hr>
+
+    <ul>
+        <li>Child Profile</li>
+        <li>Child Attendance</li>
+        <li>Child Marks</li>
+        <li>Fees</li>
+        <li>Notices</li>
+    </ul>
+
+    <br>
+
+    <a href="{% url 'logout' %}">
+        Logout
+    </a>
+
+</body>
+
+</html>

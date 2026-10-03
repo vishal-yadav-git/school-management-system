@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Principal Dashboard</title>
+</head>
+
+<body>
+
+    <h1>Principal Dashboard</h1>
+
+    <h2>
+        Welcome {{ request.user.first_name }}
+    </h2>
+
+    {% if school %}
+
+        <hr>
+
+        <h2>
+            {{ school.name }}
+        </h2>
+
+        <p>
+            School Code:
+            {{ school.code }}
+        </p>
+
+        <p>
+            City:
+            {{ school.city }}
+        </p>
+
+        <p>
+            Address:
+            {{ school.address }}
+        </p>
+
+        <p>
+            Phone:
+            {{ school.phone }}
+        </p>
+
+        <p>
+            Email:
+            {{ school.email }}
+        </p>
+
+        <hr>
+
+        <h3>School Management</h3>
+
+        <ul>
+            <li>Teachers</li>
+            <li>Students</li>
+            <li>Classes</li>
+            <li>Subjects</li>
+            <li>Attendance</li>
+            <li>Examinations</li>
+            <li>Fees</li>
+        </ul>
+
+    {% else %}
+
+        <h3 style="color:red;">
+            No school has been assigned to you.
+        </h3>
+
+        <p>
+            Please contact Main Admin.
+        </p>
+
+    {% endif %}
+
+    <br>
+
+    <a href="{% url 'logout' %}">
+        Logout
+    </a>
+
+</body>
+
+</html>

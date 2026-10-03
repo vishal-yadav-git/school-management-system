@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Import Students</title>
+
+    <style>
+
+        body {
+            font-family: Arial;
+            background: #f4f6f9;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,.08);
+        }
+
+        h1 {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 7px;
+            font-weight: bold;
+        }
+
+        select,
+        input[type=file] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+
+        button {
+            margin-top: 25px;
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 6px;
+            background: #2563eb;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        .info {
+            background: #eff6ff;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 7px;
+        }
+
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="container">
+
+    <h1>📊 Import Student Data</h1>
+
+    <div class="info">
+
+        <strong>Supported files:</strong>
+
+        CSV, XLSX, XLS
+
+        <br><br>
+
+        <strong>Process:</strong>
+
+        Upload → Preview → Confirm → Database
+
+    </div>
+
+
+    <form
+        method="POST"
+        enctype="multipart/form-data"
+    >
+
+        {% csrf_token %}
+
+        {{ form.non_field_errors }}
+
+
+        <label>
+            Select School
+        </label>
+
+        {{ form.school }}
+
+
+        <label>
+            Select CSV / Excel File
+        </label>
+
+        {{ form.file }}
+
+
+        {% if form.file.errors %}
+
+            <div class="error">
+                {{ form.file.errors }}
+            </div>
+
+        {% endif %}
+
+
+        <button type="submit">
+
+            🔍 Upload & Preview
+
+        </button>
+
+    </form>
+
+</div>
+
+</body>
+
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <title>My Students</title>
+
+</head>
+
+<body>
+
+    <h1>My Students</h1>
+
+    <h2>
+        Teacher:
+        {{ teacher.user.get_full_name }}
+    </h2>
+
+    <p>
+        School:
+        {{ teacher.school.name }}
+    </p>
+
+    <hr>
+
+    {% if students %}
+
+        <table border="1" cellpadding="10">
+
+            <tr>
+                <th>Admission No</th>
+                <th>Student Name</th>
+                <th>Class</th>
+                <th>Gender</th>
+                <th>Mobile</th>
+            </tr>
+
+            {% for student in students %}
+
+                <tr>
+
+                    <td>
+                        {{ student.admission_number }}
+                    </td>
+
+                    <td>
+                        {{ student.user.get_full_name }}
+                    </td>
+
+                    <td>
+                        {{ student.class_section }}
+                    </td>
+
+                    <td>
+                        {{ student.gender }}
+                    </td>
+
+                    <td>
+                        {{ student.mobile_no }}
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+        </table>
+
+    {% else %}
+
+        <p>
+            No students found.
+        </p>
+
+    {% endif %}
+
+</body>
+
+</html>
