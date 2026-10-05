@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Schools</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        h1 {
+            margin: 0;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            text-decoration: none;
+            border-radius: 6px;
+            color: white;
+            display: inline-block;
+        }
+
+        .add {
+            background: #198754;
+        }
+
+        .edit {
+            background: #0d6efd;
+        }
+
+        .delete {
+            background: #dc3545;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th,
+        td {
+            padding: 14px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background: #212529;
+            color: white;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+
+        <h1>🏫 School Management</h1>
+
+        <a href="{% url 'school_create' %}"
+           class="btn add">
+            + Add School
+        </a>
+
+    </div>
+
+    <table>
+
+        <thead>
+
+            <tr>
+                <th>#</th>
+                <th>School Name</th>
+                <th>Code</th>
+                <th>City</th>
+                <th>Principal</th>
+                <th>Phone</th>
+                <th>Actions</th>
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+        {% for school in schools %}
+
+            <tr>
+
+                <td>
+                    {{ forloop.counter }}
+                </td>
+
+                <td>
+                    {{ school.name }}
+                </td>
+
+                <td>
+                    {{ school.code }}
+                </td>
+
+                <td>
+                    {{ school.city }}
+                </td>
+
+                <td>
+                    {% if school.principal %}
+                        {{ school.principal.get_full_name|default:school.principal.username }}
+                    {% else %}
+                        Not Assigned
+                    {% endif %}
+                </td>
+
+                <td>
+                    {{ school.phone }}
+                </td>
+
+                <td>
+
+                    <div class="actions">
+
+                        <a
+                            href="{% url 'school_update' school.id %}"
+                            class="btn edit">
+                            Edit
+                        </a>
+
+                        <a
+                            href="{% url 'school_delete' school.id %}"
+                            class="btn delete">
+                            Delete
+                        </a>
+
+                    </div>
+
+                </td>
+
+            </tr>
+
+        {% empty %}
+
+            <tr>
+                <td colspan="7">
+                    No schools found.
+                </td>
+            </tr>
+
+        {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+</body>
+</html>

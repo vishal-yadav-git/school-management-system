@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>{{ title }}</title>
+
+    <style>
+
+        body {
+            font-family: Arial;
+            background: #f4f6f9;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .save {
+            background: #198754;
+            color: white;
+        }
+
+        .back {
+            background: #6c757d;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+        }
+
+        .errorlist {
+            color: red;
+        }
+
+        .school {
+            background: #e9f2ff;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>👨‍🏫 {{ title }}</h1>
+
+    <div class="school">
+
+        <strong>School:</strong>
+
+        {{ school.name }}
+
+    </div>
+
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+        {{ form.non_field_errors }}
+
+        {% for field in form %}
+
+            <div class="form-group">
+
+                {{ field.label_tag }}
+
+                {{ field }}
+
+                {% if field.errors %}
+
+                    {{ field.errors }}
+
+                {% endif %}
+
+            </div>
+
+        {% endfor %}
+
+
+        <button
+            type="submit"
+            class="btn save">
+
+            Create Teacher
+
+        </button>
+
+
+        <a
+            href="{% url 'teacher_list' %}"
+            class="back">
+
+            Cancel
+
+        </a>
+
+    </form>
+
+</div>
+
+</body>
+
+</html>

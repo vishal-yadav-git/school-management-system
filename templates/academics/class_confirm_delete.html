@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Delete Class</title>
+
+</head>
+
+<body>
+
+    <h2>Delete Class</h2>
+
+    <p>
+
+        Are you sure you want to delete:
+
+        <strong>
+            {{ school_class.name }}
+            -
+            {{ school_class.section }}
+        </strong>
+
+    </p>
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+        <button type="submit">
+            Yes, Delete
+        </button>
+
+        <a href="{% url 'class_list' %}">
+            Cancel
+        </a>
+
+    </form>
+
+</body>
+
+</html>

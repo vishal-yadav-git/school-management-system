@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>{{ title }}</title>
+
+    <style>
+
+        body {
+            font-family: Arial;
+            background: #f4f6f9;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .save {
+            background: #198754;
+            color: white;
+        }
+
+        .back {
+            background: #6c757d;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+        }
+
+        .errorlist {
+            color: red;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>{{ title }}</h1>
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+        {{ form.non_field_errors }}
+
+        {% for field in form %}
+
+            <div class="form-group">
+
+                {{ field.label_tag }}
+
+                {{ field }}
+
+                {% if field.errors %}
+                    {{ field.errors }}
+                {% endif %}
+
+            </div>
+
+        {% endfor %}
+
+        <button
+            type="submit"
+            class="btn save">
+            Save School
+        </button>
+
+        <a
+            href="{% url 'school_list' %}"
+            class="back">
+            Cancel
+        </a>
+
+    </form>
+
+</div>
+
+</body>
+</html>

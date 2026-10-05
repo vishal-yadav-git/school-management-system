@@ -2,81 +2,336 @@
 <html>
 
 <head>
+
     <title>Principal Dashboard</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+        }
+
+        .navbar {
+            background: #212529;
+            color: white;
+            padding: 18px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar h2 {
+            margin: 0;
+        }
+
+        .logout {
+            background: #dc3545;
+            color: white;
+            text-decoration: none;
+            padding: 9px 15px;
+            border-radius: 5px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .welcome {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+        }
+
+        .welcome h1 {
+            margin-top: 0;
+        }
+
+        .school-name {
+            color: #0d6efd;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .card h3 {
+            margin-top: 0;
+            color: #555;
+        }
+
+        .number {
+            font-size: 35px;
+            font-weight: bold;
+        }
+
+        .modules {
+            margin-top: 30px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .module {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+        }
+
+        .module h2 {
+            margin-top: 0;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 16px;
+            background: #0d6efd;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        .warning {
+            background: #fff3cd;
+            padding: 20px;
+            border-radius: 8px;
+            color: #664d03;
+        }
+
+        @media (max-width: 800px) {
+
+            .cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .modules {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+    </style>
+
 </head>
 
 <body>
 
-    <h1>Principal Dashboard</h1>
+<div class="navbar">
 
-    <h2>
-        Welcome {{ request.user.first_name }}
-    </h2>
+    <h2>🏫 School Management System</h2>
+
+    <div>
+
+        <span>
+            Welcome,
+            {{ request.user.get_full_name|default:request.user.username }}
+        </span>
+
+        &nbsp;&nbsp;
+
+        <a
+            href="{% url 'logout' %}"
+            class="logout">
+            Logout
+        </a>
+
+    </div>
+
+</div>
+
+
+<div class="container">
 
     {% if school %}
 
-        <hr>
+        <div class="welcome">
 
-        <h2>
-            {{ school.name }}
-        </h2>
+            <h1>
+                Principal Dashboard 👨‍💼
+            </h1>
 
-        <p>
-            School Code:
-            {{ school.code }}
-        </p>
+            <p>
+                You are managing:
+            </p>
 
-        <p>
-            City:
-            {{ school.city }}
-        </p>
+            <div class="school-name">
+                🏫 {{ school.name }}
+            </div>
 
-        <p>
-            Address:
-            {{ school.address }}
-        </p>
+            <p>
+                School Code: {{ school.code }}
+            </p>
 
-        <p>
-            Phone:
-            {{ school.phone }}
-        </p>
+            <p>
+                City: {{ school.city }}
+            </p>
 
-        <p>
-            Email:
-            {{ school.email }}
-        </p>
+        </div>
 
-        <hr>
 
-        <h3>School Management</h3>
+        <div class="cards">
 
-        <ul>
-            <li>Teachers</li>
-            <li>Students</li>
-            <li>Classes</li>
-            <li>Subjects</li>
-            <li>Attendance</li>
-            <li>Examinations</li>
-            <li>Fees</li>
-        </ul>
+            <div class="card">
+
+                <h3>👨‍🏫 Teachers</h3>
+
+                <div class="number">
+                    {{ total_teachers }}
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <h3>👨‍🎓 Students</h3>
+
+                <div class="number">
+                    {{ total_students }}
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <h3>📚 Classes</h3>
+
+                <div class="number">
+                    {{ total_classes }}
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <h3>📖 Subjects</h3>
+
+                <div class="number">
+                    {{ total_subjects }}
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="modules">
+
+            <div class="module">
+
+                <h2>👨‍🏫 Teacher Management</h2>
+
+                <p>
+                    Manage teachers of your school.
+                </p>
+
+               <a
+    href="{% url 'teacher_list' %}"
+    class="btn">
+
+    Manage Teachers
+
+</a>
+
+            </div>
+
+
+            <div class="module">
+
+                <h2>👨‍🎓 Student Management</h2>
+
+                <p>
+                    Manage students of your school.
+                </p>
+
+               <a
+    href="{% url 'student_list' %}"
+    class="btn">
+
+    Manage Students
+
+</a>
+
+            </div>
+
+
+            <div class="module">
+
+                <h2>📚 Class Management</h2>
+
+                <p>
+                    Manage classes and sections.
+                </p>
+
+                <a
+    href="{% url 'class_list' %}"
+    class="btn">
+
+    Manage Classes
+
+</a>
+
+            </div>
+
+
+            <div class="module">
+
+                <h2>📖 Subject Management</h2>
+
+                <p>
+                    Manage school subjects.
+                </p>
+
+                <a href="#" class="btn">
+                    Manage Subjects
+                </a>
+
+            </div>
+
+        </div>
 
     {% else %}
 
-        <h3 style="color:red;">
-            No school has been assigned to you.
-        </h3>
+        <div class="warning">
 
-        <p>
-            Please contact Main Admin.
-        </p>
+            <h2>⚠️ School Not Assigned</h2>
+
+            <p>
+                Your principal account is not currently
+                assigned to any school.
+            </p>
+
+            <p>
+                Please contact the Main Administrator.
+            </p>
+
+        </div>
 
     {% endif %}
 
-    <br>
-
-    <a href="{% url 'logout' %}">
-        Logout
-    </a>
+</div>
 
 </body>
 

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Class Management</title>
+
+    <style>
+
+        body {
+            font-family: Arial;
+            background: #f4f6f9;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            display: inline-block;
+        }
+
+        .add {
+            background: #198754;
+        }
+
+        .delete {
+            background: #dc3545;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th,
+        td {
+            padding: 14px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background: #212529;
+            color: white;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+
+        <h1>📚 Class Management</h1>
+
+        <a
+            href="{% url 'class_create' %}"
+            class="btn add">
+
+            + Add Class
+
+        </a>
+
+    </div>
+
+
+    <table>
+
+        <thead>
+
+            <tr>
+
+                <th>#</th>
+                <th>Class</th>
+                <th>Section</th>
+                <th>School</th>
+                <th>Class Teacher</th>
+                <th>Action</th>
+
+            </tr>
+
+        </thead>
+
+
+        <tbody>
+
+        {% for item in classes %}
+
+            <tr>
+
+                <td>
+                    {{ forloop.counter }}
+                </td>
+
+                <td>
+                    {{ item.name }}
+                </td>
+
+                <td>
+                    {{ item.section }}
+                </td>
+
+                <td>
+                    {{ item.school.name }}
+                </td>
+
+                <td>
+
+                    {% if item.class_teacher %}
+
+                        {{ item.class_teacher.user.get_full_name }}
+
+                    {% else %}
+
+                        Not Assigned
+
+                    {% endif %}
+
+                </td>
+
+                <td>
+
+                    <a
+                        href="{% url 'class_delete' item.id %}"
+                        class="btn delete">
+
+                        Delete
+
+                    </a>
+
+                </td>
+
+            </tr>
+
+        {% empty %}
+
+            <tr>
+
+                <td colspan="6">
+                    No classes found.
+                </td>
+
+            </tr>
+
+        {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+</body>
+
+</html>

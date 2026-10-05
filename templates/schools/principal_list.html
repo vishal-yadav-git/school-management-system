@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Principal Management</title>
+
+    <style>
+
+        body {
+            font-family: Arial;
+            background: #f4f6f9;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            text-decoration: none;
+            border-radius: 6px;
+            color: white;
+            display: inline-block;
+        }
+
+        .add {
+            background: #198754;
+        }
+
+        .delete {
+            background: #dc3545;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th,
+        td {
+            padding: 14px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background: #212529;
+            color: white;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+
+        <h1>👨‍💼 Principal Management</h1>
+
+        <a
+            href="{% url 'principal_create' %}"
+            class="btn add">
+            + Add Principal
+        </a>
+
+    </div>
+
+    <table>
+
+        <thead>
+
+            <tr>
+
+                <th>#</th>
+                <th>Name</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Mobile</th>
+                <th>School</th>
+                <th>Action</th>
+
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+        {% for principal in principals %}
+
+            <tr>
+
+                <td>
+                    {{ forloop.counter }}
+                </td>
+
+                <td>
+                    {{ principal.get_full_name }}
+                </td>
+
+                <td>
+                    {{ principal.username }}
+                </td>
+
+                <td>
+                    {{ principal.email }}
+                </td>
+
+                <td>
+                    {{ principal.mobile }}
+                </td>
+
+                <td>
+
+                    {% if principal.principal_school %}
+
+                        {{ principal.principal_school.name }}
+
+                    {% else %}
+
+                        Not Assigned
+
+                    {% endif %}
+
+                </td>
+
+                <td>
+
+                    <a
+                        href="{% url 'principal_delete' principal.id %}"
+                        class="btn delete">
+                        Delete
+                    </a>
+
+                </td>
+
+            </tr>
+
+        {% empty %}
+
+            <tr>
+
+                <td colspan="7">
+                    No principals found.
+                </td>
+
+            </tr>
+
+        {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+</body>
+
+</html>

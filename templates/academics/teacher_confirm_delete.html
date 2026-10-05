@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Delete Teacher</title>
+
+</head>
+
+<body>
+
+    <h2>Delete Teacher</h2>
+
+    <p>
+
+        Are you sure you want to delete
+
+        <strong>
+            {{ teacher.user.get_full_name }}
+        </strong>?
+
+    </p>
+
+    <p>
+        Employee ID:
+        {{ teacher.employee_id }}
+    </p>
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+        <button type="submit">
+            Yes, Delete
+        </button>
+
+        <a href="{% url 'teacher_list' %}">
+            Cancel
+        </a>
+
+    </form>
+
+</body>
+
+</html>

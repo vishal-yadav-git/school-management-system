@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Delete Principal</title>
+
+</head>
+
+<body>
+
+    <h2>Delete Principal</h2>
+
+    <p>
+        Are you sure you want to delete
+        <strong>
+            {{ principal.get_full_name }}
+        </strong>?
+    </p>
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+        <button type="submit">
+            Yes, Delete
+        </button>
+
+        <a href="{% url 'principal_list' %}">
+            Cancel
+        </a>
+
+    </form>
+
+</body>
+
+</html>
