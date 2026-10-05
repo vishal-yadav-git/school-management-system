@@ -34,5 +34,6 @@ urlpatterns = [
 ),
 path('import/', include('imports.urls')),
 path('schools/', include('schools.urls')),
+    path('api/v1/', include('api.urls')),
 
 ]

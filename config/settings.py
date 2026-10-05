@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-)echvr9#ucb8^7x7^gno7yel-^-fy0sy7%-&2#(n$#hx%2=l05
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -37,11 +37,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
     'core',
     'accounts',
     'schools',
     'academics',
     'imports',
+    'api',
 ]
 # added manually
 AUTH_USER_MODEL = 'accounts.User'
@@ -148,3 +150,20 @@ DATABASES = {
 }
 MEDIA_ROOT = BASE_DIR / "media"
 MEDIA_URL = "/media/"
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+    ],
+}
+
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+]
