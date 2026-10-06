@@ -11,3 +11,16 @@ class IsTeacher(BasePermission):
     def has_permission(self, request, view):
         u = request.user
         return bool(u and u.is_authenticated and getattr(u, "role", "") == "teacher")
+
+
+class IsStudent(BasePermission):
+    def has_permission(self, request, view):
+        u = request.user
+        return bool(u and u.is_authenticated and (u.is_superuser or getattr(u, "role", "") == "student"))
+
+
+class IsSuperuserOnly(BasePermission):
+    def has_permission(self, request, view):
+        u = request.user
+        return bool(u and u.is_authenticated and u.is_superuser)
+

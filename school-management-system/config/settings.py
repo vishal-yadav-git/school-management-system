@@ -161,6 +161,11 @@ REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
     ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '10/minute',
+        'user': '100/minute',
+        'auth': '10/min',
+    },
 }
 
 CSRF_TRUSTED_ORIGINS = [

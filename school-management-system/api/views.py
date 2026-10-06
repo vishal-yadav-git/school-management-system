@@ -1,17 +1,20 @@
 from django.contrib.auth import authenticate, login, logout
 from django.middleware.csrf import get_token
 from django.shortcuts import get_object_or_404
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.throttling import SimpleRateThrottle
 
 from academics.models import SchoolClass, Student, Subject, Teacher
 from accounts.models import User
 from schools.models import School
 
-from .permissions import IsPrincipalOrSuperuser, IsTeacher
+from .permissions import IsPrincipalOrSuperuser, IsStudent, IsTeacher
 from .serializers import (
     ClassSerializer,
+    RegisterSerializer,
     SchoolSerializer,
     StudentSerializer,
     TeacherSerializer,
@@ -58,6 +61,17 @@ def session_payload(user):
     return data
 
 
+
+class AuthThrottle(SimpleRateThrottle):
+    scope = "auth"
+
+    def get_cache_key(self, request, view):
+        return self.cache_format % {
+            "scope": self.scope,
+            "ident": self.get_ident(request),
+        }
+
+
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def csrf(request):
@@ -70,6 +84,7 @@ def csrf(request):
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
+@throttle_classes([AuthThrottle])
 def login_view(request):
     username = request.data.get("username")
     password = request.data.get("password")
@@ -79,7 +94,26 @@ def login_view(request):
         return Response({"detail": "Invalid username or password"}, status=400)
 
     login(request, user)
+    remember = request.data.get("remember", True)
+    if remember is False or str(remember).lower() in ["false", "0"]:
+        request.session.set_expiry(0)
+    else:
+        request.session.set_expiry(14 * 24 * 60 * 60)
     return Response(session_payload(user))
+
+
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+@throttle_classes([AuthThrottle])
+def register_view(request):
+    serializer = RegisterSerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    user = serializer.save()
+    login(request, user)
+    return Response(session_payload(user), status=status.HTTP_201_CREATED)
 
 
 @api_view(["POST"])
@@ -163,3 +197,15 @@ def my_students(request):
             "students": StudentSerializer(students_qs, many=True).data,
         }
     )
+
+
+@api_view(["GET"])
+@permission_classes([IsStudent])
+def student_me(request):
+    u = request.user
+    profile = getattr(u, "student_profile", None)
+    if not profile and u.is_superuser:
+        profile = Student.objects.select_related("user", "school", "class_section").first()
+    if not profile:
+        return Response({"detail": "Student profile not found"}, status=status.HTTP_404_NOT_FOUND)
+    return Response(StudentSerializer(profile).data)
