@@ -105,7 +105,7 @@ def teacher_list(request):
 @login_required
 def teacher_create(request):
 
-    # Principal
+    # Principal -> own school automatically
     if request.user.role == 'principal':
 
         try:
@@ -116,7 +116,7 @@ def teacher_create(request):
         if school is None:
             return redirect('dashboard')
 
-    # Main Admin
+    # Main Admin -> school supplied through URL
     elif request.user.is_superuser:
 
         school_id = request.GET.get('school')
@@ -130,7 +130,6 @@ def teacher_create(request):
         )
 
     else:
-
         return redirect('dashboard')
 
     if request.method == 'POST':
@@ -152,16 +151,55 @@ def teacher_create(request):
             Teacher.objects.create(
                 user=user,
                 school=school,
-                employee_id=form.cleaned_data['employee_id'],
-                qualification=form.cleaned_data['qualification'],
-                joining_date=form.cleaned_data['joining_date'],
-                designation=form.cleaned_data['designation']
+
+                employee_id=form.cleaned_data[
+                    'employee_id'
+                ],
+
+                qualification=form.cleaned_data[
+                    'qualification'
+                ],
+
+                designation=form.cleaned_data[
+                    'designation'
+                ],
+
+                department=form.cleaned_data[
+                    'department'
+                ],
+
+                subject=form.cleaned_data[
+                    'subject'
+                ],
+
+                experience=form.cleaned_data[
+                    'experience'
+                ] or 0,
+
+                joining_date=form.cleaned_data[
+                    'joining_date'
+                ],
+
+                date_of_birth=form.cleaned_data[
+                    'date_of_birth'
+                ],
+
+                gender=form.cleaned_data[
+                    'gender'
+                ],
+
+                address=form.cleaned_data[
+                    'address'
+                ],
+
+                emergency_contact=form.cleaned_data[
+                    'emergency_contact'
+                ]
             )
 
             return redirect('teacher_list')
 
     else:
-
         form = TeacherForm()
 
     return render(
@@ -173,7 +211,6 @@ def teacher_create(request):
             'title': 'Add Teacher'
         }
     )
-
 
 # =========================================================
 # DELETE TEACHER

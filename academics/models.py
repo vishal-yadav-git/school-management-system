@@ -5,6 +5,12 @@ from schools.models import School
 
 class Teacher(models.Model):
 
+    GENDER_CHOICES = (
+        ('Male', 'Male'),
+        ('Female', 'Female'),
+        ('Other', 'Other'),
+    )
+
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -23,13 +29,7 @@ class Teacher(models.Model):
     )
 
     qualification = models.CharField(
-        max_length=200,
-        blank=True
-    )
-
-    joining_date = models.DateField(
-        null=True,
-        blank=True
+        max_length=200
     )
 
     designation = models.CharField(
@@ -37,9 +37,59 @@ class Teacher(models.Model):
         default='Teacher'
     )
 
-    def __str__(self):
-        return f"{self.user.get_full_name()} - {self.school.name}"
+    department = models.CharField(
+        max_length=100,
+        blank=True
+    )
 
+    subject = models.CharField(
+        max_length=200,
+        blank=True
+    )
+
+    experience = models.PositiveIntegerField(
+        default=0,
+        help_text='Experience in years'
+    )
+
+    joining_date = models.DateField(
+        null=True,
+        blank=True
+    )
+
+    date_of_birth = models.DateField(
+        null=True,
+        blank=True
+    )
+
+    gender = models.CharField(
+        max_length=10,
+        choices=GENDER_CHOICES,
+        blank=True
+    )
+
+    address = models.TextField(
+        blank=True
+    )
+
+    emergency_contact = models.CharField(
+        max_length=20,
+        blank=True
+    )
+
+    is_active = models.BooleanField(
+        default=True
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        null=True,
+        blank=True
+    )
+
+    def __str__(self):
+        name = self.user.get_full_name() or self.user.username
+        return f"{name} - {self.employee_id} - {self.school.name}"
 
 class SchoolClass(models.Model):
 
@@ -96,6 +146,46 @@ class Student(models.Model):
         unique=True
     )
 
+    # -------------------------
+    # PARENT INFORMATION
+    # -------------------------
+
+    father_name = models.CharField(
+        max_length=200,
+        blank=True
+    )
+
+    mother_name = models.CharField(
+        max_length=200,
+        blank=True
+    )
+
+    # -------------------------
+    # CONTACT INFORMATION
+    # -------------------------
+
+    mobile_no = models.CharField(
+        max_length=20,
+        blank=True
+    )
+
+    alternate_mobile = models.CharField(
+        max_length=20,
+        blank=True
+    )
+
+    email = models.EmailField(
+        blank=True
+    )
+
+    address = models.TextField(
+        blank=True
+    )
+
+    # -------------------------
+    # PERSONAL INFORMATION
+    # -------------------------
+
     date_of_birth = models.DateField(
         null=True,
         blank=True
@@ -111,13 +201,62 @@ class Student(models.Model):
         blank=True
     )
 
-    address = models.TextField(
+    caste = models.CharField(
+        max_length=100,
         blank=True
     )
 
+    # -------------------------
+    # ADMISSION INFORMATION
+    # -------------------------
+
     admission_date = models.DateField(
-        auto_now_add=True
+        null=True,
+        blank=True
     )
+
+    # -------------------------
+    # FEES
+    # -------------------------
+
+    fees = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=0
+    )
+
+    # -------------------------
+    # TRANSPORT / HOSTEL
+    # -------------------------
+
+    transport = models.CharField(
+        max_length=100,
+        blank=True
+    )
+
+    hostel = models.CharField(
+        max_length=100,
+        blank=True
+    )
+
+    # -------------------------
+    # SUBJECT
+    # -------------------------
+
+    subject = models.CharField(
+        max_length=200,
+        blank=True
+    )
+
+    # -------------------------
+    # TIMESTAMP
+    # -------------------------
+
+    created_at = models.DateTimeField(
+    auto_now_add=True,
+    null=True,
+    blank=True
+)
 
     def __str__(self):
         return f"{self.user.get_full_name()} - {self.admission_number}"

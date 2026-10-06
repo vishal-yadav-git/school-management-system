@@ -16,6 +16,10 @@ from .models import (
 
 class TeacherForm(forms.Form):
 
+    # =========================
+    # PERSONAL INFORMATION
+    # =========================
+
     first_name = forms.CharField(
         max_length=150,
         widget=forms.TextInput(attrs={
@@ -33,11 +37,11 @@ class TeacherForm(forms.Form):
         })
     )
 
-    username = forms.CharField(
-        max_length=150,
+    mobile = forms.CharField(
+        max_length=15,
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Username'
+            'placeholder': 'Mobile Number'
         })
     )
 
@@ -45,16 +49,123 @@ class TeacherForm(forms.Form):
         required=False,
         widget=forms.EmailInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Email'
+            'placeholder': 'Email Address'
         })
     )
 
-    mobile = forms.CharField(
-        max_length=15,
+    date_of_birth = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={
+            'class': 'form-control',
+            'type': 'date'
+        })
+    )
+
+    gender = forms.ChoiceField(
+        required=False,
+        choices=[
+            ('', 'Select Gender'),
+            ('Male', 'Male'),
+            ('Female', 'Female'),
+            ('Other', 'Other'),
+        ],
+        widget=forms.Select(attrs={
+            'class': 'form-control'
+        })
+    )
+
+    address = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'rows': 3,
+            'placeholder': 'Address'
+        })
+    )
+
+    emergency_contact = forms.CharField(
+        max_length=20,
         required=False,
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Mobile Number'
+            'placeholder': 'Emergency Contact'
+        })
+    )
+
+    # =========================
+    # PROFESSIONAL INFORMATION
+    # =========================
+
+    employee_id = forms.CharField(
+        max_length=50,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Employee ID'
+        })
+    )
+
+    qualification = forms.CharField(
+        max_length=200,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Example: MCA, B.Ed, M.Sc'
+        })
+    )
+
+    designation = forms.CharField(
+        max_length=100,
+        initial='Teacher',
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Designation'
+        })
+    )
+
+    department = forms.CharField(
+        max_length=100,
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Department'
+        })
+    )
+
+    subject = forms.CharField(
+        max_length=200,
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Example: Mathematics'
+        })
+    )
+
+    experience = forms.IntegerField(
+        min_value=0,
+        required=False,
+        initial=0,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Experience in years'
+        })
+    )
+
+    joining_date = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={
+            'class': 'form-control',
+            'type': 'date'
+        })
+    )
+
+    # =========================
+    # LOGIN INFORMATION
+    # =========================
+
+    username = forms.CharField(
+        max_length=150,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Login Username'
         })
     )
 
@@ -72,49 +183,10 @@ class TeacherForm(forms.Form):
         })
     )
 
-    employee_id = forms.CharField(
-        max_length=50,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Employee ID'
-        })
-    )
-
-    qualification = forms.CharField(
-        max_length=200,
-        required=False,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Qualification'
-        })
-    )
-
-    joining_date = forms.DateField(
-        required=False,
-        widget=forms.DateInput(attrs={
-            'class': 'form-control',
-            'type': 'date'
-        })
-    )
-
-    designation = forms.CharField(
-        max_length=100,
-        required=False,
-        initial='Teacher',
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Designation'
-        })
-    )
-
     def clean_username(self):
-
         username = self.cleaned_data['username']
 
-        if User.objects.filter(
-            username=username
-        ).exists():
-
+        if User.objects.filter(username=username).exists():
             raise forms.ValidationError(
                 'This username already exists.'
             )
@@ -122,13 +194,11 @@ class TeacherForm(forms.Form):
         return username
 
     def clean_employee_id(self):
-
         employee_id = self.cleaned_data['employee_id']
 
         if Teacher.objects.filter(
             employee_id=employee_id
         ).exists():
-
             raise forms.ValidationError(
                 'This Employee ID already exists.'
             )
@@ -136,26 +206,18 @@ class TeacherForm(forms.Form):
         return employee_id
 
     def clean(self):
-
         cleaned_data = super().clean()
 
         password = cleaned_data.get('password')
-        confirm_password = cleaned_data.get(
-            'confirm_password'
-        )
+        confirm_password = cleaned_data.get('confirm_password')
 
-        if (
-            password
-            and confirm_password
-            and password != confirm_password
-        ):
-
-            raise forms.ValidationError(
-                'Passwords do not match.'
-            )
+        if password and confirm_password:
+            if password != confirm_password:
+                raise forms.ValidationError(
+                    'Passwords do not match.'
+                )
 
         return cleaned_data
-
 
 # =========================================================
 # CLASS / SECTION FORM

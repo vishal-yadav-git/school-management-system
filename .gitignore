@@ -29,3 +29,19 @@ Thumbs.db
 
 # Temporary files
 *.log
+
+
+
+# Student / Excel / CSV data
+*.xlsx
+*.xls
+*.csv
+
+# Local database
+db.sqlite3
+
+# Static collected files
+staticfiles/
+
+# Environment
+.env

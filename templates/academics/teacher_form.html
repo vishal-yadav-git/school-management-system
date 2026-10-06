@@ -1,46 +1,69 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-
     <title>{{ title }}</title>
 
     <style>
-
         body {
-            font-family: Arial;
+            font-family: Arial, sans-serif;
             background: #f4f6f9;
-            padding: 40px;
+            margin: 0;
         }
 
         .container {
-            max-width: 700px;
-            margin: auto;
+            max-width: 1050px;
+            margin: 35px auto;
+        }
+
+        .header {
             background: white;
-            padding: 30px;
+            padding: 22px;
             border-radius: 10px;
+            margin-bottom: 20px;
         }
 
-        .form-group {
-            margin-bottom: 18px;
+        .section {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
         }
 
-        label {
+        .section h2 {
+            margin-top: 0;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 12px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        .field label {
             display: block;
-            margin-bottom: 6px;
             font-weight: bold;
+            margin-bottom: 7px;
         }
 
-        input {
+        .form-control {
             width: 100%;
-            padding: 10px;
             box-sizing: border-box;
+            padding: 11px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
         }
 
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
+        .error {
+            color: #b00020;
+            font-size: 14px;
+        }
+
+        button {
+            padding: 12px 25px;
+            border: 0;
+            border-radius: 6px;
             cursor: pointer;
         }
 
@@ -50,83 +73,189 @@
         }
 
         .back {
+            display: inline-block;
+            padding: 11px 22px;
+            text-decoration: none;
             background: #6c757d;
             color: white;
-            text-decoration: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-        }
-
-        .errorlist {
-            color: red;
-        }
-
-        .school {
-            background: #e9f2ff;
-            padding: 15px;
             border-radius: 6px;
-            margin-bottom: 20px;
         }
 
+        @media(max-width: 700px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
-
 </head>
 
 <body>
 
 <div class="container">
 
-    <h1>👨‍🏫 {{ title }}</h1>
+    <div class="header">
+        <h1>{{ title }}</h1>
+        <p>
+            <strong>School:</strong>
+            {{ school.name }}
+        </p>
 
-    <div class="school">
-
-        <strong>School:</strong>
-
-        {{ school.name }}
-
+        {% if school.principal %}
+            <p>
+                <strong>Principal:</strong>
+                {{ school.principal.get_full_name }}
+            </p>
+        {% endif %}
     </div>
-
 
     <form method="POST">
 
         {% csrf_token %}
 
-        {{ form.non_field_errors }}
+        {% if form.non_field_errors %}
+            <div class="section error">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
 
-        {% for field in form %}
+        <div class="section">
 
-            <div class="form-group">
+            <h2>Personal Information</h2>
 
-                {{ field.label_tag }}
+            <div class="grid">
 
-                {{ field }}
+                <div class="field">
+                    <label>First Name *</label>
+                    {{ form.first_name }}
+                    <div class="error">
+                        {{ form.first_name.errors }}
+                    </div>
+                </div>
 
-                {% if field.errors %}
+                <div class="field">
+                    <label>Last Name</label>
+                    {{ form.last_name }}
+                </div>
 
-                    {{ field.errors }}
+                <div class="field">
+                    <label>Mobile *</label>
+                    {{ form.mobile }}
+                </div>
 
-                {% endif %}
+                <div class="field">
+                    <label>Email</label>
+                    {{ form.email }}
+                </div>
+
+                <div class="field">
+                    <label>Date of Birth</label>
+                    {{ form.date_of_birth }}
+                </div>
+
+                <div class="field">
+                    <label>Gender</label>
+                    {{ form.gender }}
+                </div>
+
+                <div class="field">
+                    <label>Emergency Contact</label>
+                    {{ form.emergency_contact }}
+                </div>
 
             </div>
 
-        {% endfor %}
+            <div class="field" style="margin-top:18px;">
+                <label>Address</label>
+                {{ form.address }}
+            </div>
 
+        </div>
 
-        <button
-            type="submit"
-            class="btn save">
+        <div class="section">
 
-            Create Teacher
+            <h2>Professional Information</h2>
 
+            <div class="grid">
+
+                <div class="field">
+                    <label>Employee ID *</label>
+                    {{ form.employee_id }}
+                    <div class="error">
+                        {{ form.employee_id.errors }}
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label>Qualification *</label>
+                    {{ form.qualification }}
+                </div>
+
+                <div class="field">
+                    <label>Designation</label>
+                    {{ form.designation }}
+                </div>
+
+                <div class="field">
+                    <label>Department</label>
+                    {{ form.department }}
+                </div>
+
+                <div class="field">
+                    <label>Subject</label>
+                    {{ form.subject }}
+                </div>
+
+                <div class="field">
+                    <label>Experience (Years)</label>
+                    {{ form.experience }}
+                </div>
+
+                <div class="field">
+                    <label>Joining Date</label>
+                    {{ form.joining_date }}
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="section">
+
+            <h2>Login Information</h2>
+
+            <div class="grid">
+
+                <div class="field">
+                    <label>Username *</label>
+                    {{ form.username }}
+
+                    <div class="error">
+                        {{ form.username.errors }}
+                    </div>
+                </div>
+
+                <div></div>
+
+                <div class="field">
+                    <label>Password *</label>
+                    {{ form.password }}
+                </div>
+
+                <div class="field">
+                    <label>Confirm Password *</label>
+                    {{ form.confirm_password }}
+                </div>
+
+            </div>
+
+        </div>
+
+        <button type="submit" class="save">
+            Save Teacher
         </button>
 
-
-        <a
-            href="{% url 'teacher_list' %}"
-            class="back">
-
+        <a href="{% url 'teacher_list' %}" class="back">
             Cancel
-
         </a>
 
     </form>
@@ -134,5 +263,4 @@
 </div>
 
 </body>
-
 </html>
