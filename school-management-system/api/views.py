@@ -26,7 +26,7 @@ REDIRECTS = {
     "principal": "/admin",
     "teacher": "/teacher/attendance",
     "parent": "/parent",
-    "student": "/institutes",
+    "student": "/student",
 }
 
 
@@ -58,6 +58,14 @@ def session_payload(user):
     teacher = getattr(user, "teacher_profile", None)
     if teacher:
         data["teacher"] = {"employeeId": teacher.employee_id, "designation": teacher.designation}
+    student = getattr(user, "student_profile", None)
+    if student:
+        c = student.class_section
+        class_name = f"{c.name}-{c.section}" if c else None
+        data["student"] = {
+            "admissionNumber": student.admission_number,
+            "className": class_name,
+        }
     return data
 
 

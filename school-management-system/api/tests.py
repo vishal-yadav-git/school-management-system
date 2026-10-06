@@ -263,10 +263,22 @@ class ApiTests(TestCase):
         )
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
         self.assertEqual(res.data["user"]["role"], "student")
-        self.assertEqual(res.data["redirectUrl"], "/institutes")
+        self.assertEqual(res.data["redirectUrl"], "/student")
         self.assertTrue(self.client.session.get("_auth_user_id"))
+        self.assertIn("student", res.data)
+        self.assertEqual(res.data["student"]["admissionNumber"], "ADM-NEW-001")
+        self.assertIsNone(res.data["student"]["className"])
         from academics.models import Student
         self.assertTrue(Student.objects.filter(admission_number="ADM-NEW-001").exists())
+
+    def test_student_session_payload_contains_admission_and_class_name(self):
+        self.client.force_login(self.student_user_a)
+        res = self.client.get("/api/v1/auth/me/")
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data["redirectUrl"], "/student")
+        self.assertIn("student", res.data)
+        self.assertEqual(res.data["student"]["admissionNumber"], "A001")
+        self.assertEqual(res.data["student"]["className"], "10-A")
 
     def test_register_teacher_success(self):
         res = self.client.post(
