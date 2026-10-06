@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"surface-dim":"#dad6f8","background":"#fcf8ff","on-background":"#1a1932","tertiary-container":"#a93705","surface-container-low":"#f6f2ff","inverse-primary":"#c7bfff","on-primary-fixed":"#180065","on-surface-variant":"#474553","secondary-fixed":"#e4deff","surface-container":"#efebff","outline":"#787585","on-secondary-fixed":"#19085b","tertiary":"#822700","on-secondary":"#ffffff","surface-container-highest":"#e3dfff","surface-bright":"#fcf8ff","outline-variant":"#c9c4d5","on-surface":"#1a1932","secondary-container":"#b3a9fd","on-primary-container":"#dad3ff","secondary":"#5d54a1","primary-fixed-dim":"#c7bfff","surface-variant":"#e3dfff","tertiary-fixed":"#ffdbd0","surface-container-lowest":"#ffffff","secondary-fixed-dim":"#c7bfff","primary":"#4330ab","error":"#ba1a1a","inverse-surface":"#2f2e48","on-tertiary-fixed-variant":"#832700","surface-container-high":"#e9e5ff","surface":"#fcf8ff","on-error-container":"#93000a","on-tertiary-fixed":"#390c00","on-tertiary-container":"#ffcdbd","surface-tint":"#5b4bc4","on-primary-fixed-variant":"#4330ab","on-tertiary":"#ffffff","on-primary":"#ffffff","primary-container":"#5b4bc4","primary-fixed":"#e4dfff","on-secondary-container":"#443a86","on-error":"#ffffff","error-container":"#ffdad6","on-secondary-fixed-variant":"#453c87","inverse-on-surface":"#f2efff","tertiary-fixed-dim":"#ffb59c"},borderRadius:{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},spacing:{"gutter-lg":"2rem","margin-md":"2rem","space-sm":"0.5rem","space-md":"1rem","space-xs":"0.25rem","margin":"1rem","margin-lg":"4rem","gutter-sm":"1rem","space-lg":"1.5rem","space-xl":"2.5rem","gutter":"1.5rem"},fontFamily:{"label-lg":["Plus Jakarta Sans"],"display-lg":["Plus Jakarta Sans"],"headline-xl-mobile":["Plus Jakarta Sans"],"headline-xl":["Plus Jakarta Sans"],"body-md":["Plus Jakarta Sans"],"headline-md":["Plus Jakarta Sans"],"label-md":["Plus Jakarta Sans"],"headline-lg":["Plus Jakarta Sans"],"headline-sm":["Plus Jakarta Sans"],"display-lg-mobile":["Plus Jakarta Sans"],"body-sm":["Plus Jakarta Sans"],"body-lg":["Plus Jakarta Sans"],"label-sm":["Plus Jakarta Sans"]},fontSize:{"label-lg":["14px",{"lineHeight":"20px","letterSpacing":"0.01em","fontWeight":"600"}],"display-lg":["48px",{"lineHeight":"56px","letterSpacing":"-0.03em","fontWeight":"800"}],"headline-xl-mobile":["26px",{"lineHeight":"34px","letterSpacing":"-0.02em","fontWeight":"700"}],"headline-xl":["36px",{"lineHeight":"44px","letterSpacing":"-0.025em","fontWeight":"700"}],"body-md":["14px",{"lineHeight":"22px","letterSpacing":"0em","fontWeight":"400"}],"headline-md":["22px",{"lineHeight":"30px","letterSpacing":"-0.015em","fontWeight":"600"}],"label-md":["12px",{"lineHeight":"16px","letterSpacing":"0.02em","fontWeight":"600"}],"headline-lg":["28px",{"lineHeight":"36px","letterSpacing":"-0.02em","fontWeight":"700"}],"headline-sm":["18px",{"lineHeight":"26px","letterSpacing":"-0.01em","fontWeight":"600"}],"display-lg-mobile":["32px",{"lineHeight":"40px","letterSpacing":"-0.02em","fontWeight":"800"}],"body-sm":["12px",{"lineHeight":"18px","letterSpacing":"0.01em","fontWeight":"400"}],"body-lg":["16px",{"lineHeight":"26px","letterSpacing":"0em","fontWeight":"400"}],"label-sm":["11px",{"lineHeight":"14px","letterSpacing":"0.03em","fontWeight":"700"}]}}}};</script></head><body class="bg-surface font-body-md text-on-surface antialiased"><header class="fixed top-0 left-0 right-0 z-50 bg-surface-container-lowest border-b border-outline-variant/50 shadow-[0_1px_8px_rgba(42,31,107,0.04)]"><div class="h-28 max-w-[1280px] mx-auto px-margin lg:px-margin-md flex flex-col justify-between"><div class="h-16 flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-md shrink-0"><img alt="IndoreEdu Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1XccENPM6EePe_kby3YaSg5H7byL6d543LkOKofLy_QSd-Ww8Lyivm1cA16CVUSioJk5Q2Q6ggEqNj7Vqm5F_m_boWmJ0LLpj1IHBniRsPemLhgGRDUfMOXYHhDgwD2t73YI6ydC7tu6wYDpkUtzN-SPcRwJv59YeocjKadxAVwtwCR1kSGFjWU0YfxCVVLn0-tAlcY0mQEL_nALBEZ6wz7WzWJyawSg8DKhMEoHvxOpzvbsxlBsjpNz_o"/><a class="flex flex-col" data-path="explore-directory" href="#"><span class="font-headline-sm text-headline-sm text-primary tracking-tight font-extrabold">IndoreEdu</span><span class="font-label-sm text-label-sm text-on-surface-variant leading-none">Education Portal</span></a></div><div class="flex-1 max-w-2xl mx-space-sm hidden md:flex items-center"><div class="w-full flex items-center bg-surface-container-lowest border border-outline-variant rounded-full px-space-md py-1.5 shadow-[0_2px_8px_rgba(42,31,107,0.03)] hover:border-primary-container transition-colors"><span class="material-symbols-outlined text-primary text-[20px] mr-space-xs">search</span><input class="w-full bg-transparent font-body-md text-body-md text-on-surface placeholder:text-outline focus:outline-none" placeholder="Search schools, colleges, coaching in Indore..." type="text"/><div class="h-4 w-[1px] bg-outline-variant mx-space-xs"></div><div class="flex items-center gap-1 text-on-surface-variant font-label-md text-label-md shrink-0 cursor-pointer hover:text-primary"><span class="material-symbols-outlined text-[16px] text-tertiary-container">location_on</span><span>Indore (MP 09)</span></div></div></div><div class="flex items-center gap-space-md shrink-0"><div class="hidden lg:flex items-center bg-surface-container rounded-full p-0.5 border border-outline-variant/60 font-label-md text-label-md"><button class="px-2.5 py-1 rounded-full bg-surface-container-lowest text-primary font-bold shadow-sm" type="button">English</button><button class="px-2.5 py-1 rounded-full text-on-surface-variant hover:text-on-surface" type="button">हिंदी</button></div><a class="hidden xl:block font-label-lg text-label-lg text-on-surface-variant hover:text-primary transition-colors" data-path="for-institutes-portal" href="#">For Institutes</a><a class="bg-tertiary-container text-on-tertiary font-label-lg text-label-lg px-space-lg py-2 rounded-full hover:bg-tertiary transition-all shadow-[0_2px_8px_rgba(169,55,5,0.25)]" data-path="login-registration" href="#">Login / Register</a><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div><div class="h-12 flex items-center justify-between border-t border-outline-variant/30 overflow-x-auto"><nav class="flex items-center gap-space-xs" data-active-classes="bg-surface-container text-primary font-bold rounded-full"><a class="px-3 py-1 font-label-md text-label-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all flex items-center gap-1.5 shrink-0" data-path="schools-directory" href="#">Schools</a><a class="px-3 py-1 font-label-md text-label-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all flex items-center gap-1.5 shrink-0" data-path="colleges-directory" href="#">Colleges</a><a class="px-3 py-1 font-label-md text-label-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all flex items-center gap-1.5 shrink-0" data-path="engineering-institutes" href="#">Engineering</a><a class="px-3 py-1 font-label-md text-label-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all flex items-center gap-1.5 shrink-0" data-path="medical-colleges" href="#">Medical</a><a class="px-3 py-1 font-label-md text-label-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all flex items-center gap-1.5 shrink-0" data-path="management-institutes" href="#">Management</a><a class="px-3 py-1 font-label-md text-label-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all flex items-center gap-1.5 shrink-0" data-path="coaching-institutes" href="#">Coaching Institutes</a><a class="px-3 py-1 font-label-md text-label-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all flex items-center gap-1.5 shrink-0" data-path="universities-listing" href="#">Universities</a><a class="px-3 py-1 font-label-md text-label-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all flex items-center gap-1.5 shrink-0" data-path="for-institutes-portal" href="#">For Institutes (Admin)</a></nav><div class="hidden md:flex items-center gap-1 text-on-surface-variant font-label-sm text-label-sm shrink-0"><span class="material-symbols-outlined text-[15px] text-primary">verified</span><span>500+ Verified Institutes</span></div></div></div></header><main class="w-full pt-28 bg-surface"><div class="flex flex-col w-full">
+<!-- SECTION 1: HERO CONTAINER -->
+<section class="w-full max-w-[1280px] mx-auto px-margin lg:px-margin-md py-space-md lg:py-space-xl">
+<div class="bg-surface-container rounded-[2rem] p-space-md md:p-space-lg lg:p-space-xl grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-center relative overflow-hidden">
+<!-- Decorative ambient gradient ring -->
+<div class="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-primary/5 blur-3xl pointer-events-none"></div>
+<div class="absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-tertiary-container/10 blur-3xl pointer-events-none"></div>
+<!-- Left Column: Search & Directives -->
+<div class="lg:col-span-7 flex flex-col items-start gap-space-md z-10">
+<!-- Trust Badge -->
+<div class="inline-flex items-center gap-2 px-space-md py-1.5 rounded-full bg-surface-container-lowest shadow-sm">
+<span class="w-2 h-2 rounded-full bg-tertiary-container animate-pulse"></span>
+<span class="font-label-sm text-label-sm text-on-surface font-semibold tracking-wide uppercase">Indore's #1 Education Network</span>
+<span class="text-outline-variant font-light">•</span>
+<span class="font-label-sm text-label-sm text-primary font-bold">2,400+ Verified Institutions</span>
+</div>
+<!-- Headline -->
+<h1 class="font-display-lg text-display-lg text-on-surface tracking-tight leading-tight">
+          Indore ke har school, college aur institute, <span class="text-primary underline decoration-tertiary-container decoration-4 underline-offset-8">ek jagah</span>
+</h1>
+<!-- Subtitle -->
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-xl">
+          Explore accredited CBSE schools, MP Board institutes, premier engineering colleges, and MPPSC coaching centers across Vijay Nagar, Bhawarkuan, Palasia &amp; Rau.
+        </p>
+<!-- Big Pill Search Bar -->
+<div class="w-full mt-space-xs bg-surface-container-lowest rounded-full p-2 shadow-lg flex flex-col sm:flex-row items-center gap-2">
+<!-- Category Select Trigger -->
+<div class="relative shrink-0 w-full sm:w-auto">
+<select aria-label="Select institutional category" class="w-full sm:w-auto appearance-none bg-surface-container pl-4 pr-9 py-2.5 rounded-full font-label-md text-label-md text-on-surface focus:outline-none cursor-pointer">
+<option>All Categories</option>
+<option>CBSE / ICSE Schools</option>
+<option>Engineering (B.Tech)</option>
+<option>Medical (NEET / MBBS)</option>
+<option>MPPSC &amp; UPSC Coaching</option>
+<option>Management (MBA / BBA)</option>
+<option>Commerce &amp; CA Prep</option>
+</select>
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">expand_more</span>
+</div>
+<!-- Divider -->
+<div class="hidden sm:block h-6 w-px bg-outline-variant/60"></div>
+<!-- Input field with icon -->
+<div class="flex-1 flex items-center w-full px-2">
+<span class="material-symbols-outlined text-primary text-[22px] mr-2">search</span>
+<input class="w-full bg-transparent font-body-md text-body-md text-on-surface placeholder:text-outline focus:outline-none" placeholder="Search by institute name, course, or locality..." type="text"/>
+</div>
+<!-- Submit Button -->
+<button class="w-full sm:w-auto bg-tertiary-container hover:bg-tertiary text-on-tertiary font-label-lg text-label-lg px-7 py-3 rounded-full flex items-center justify-center gap-2 shadow-md transition-all shrink-0" type="button">
+<span>Find Institutes</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+<!-- Quick Filter Chips -->
+<div class="w-full flex items-center gap-2 flex-wrap pt-1">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider mr-1">Trending:</span>
+<button class="px-3.5 py-1.5 rounded-full bg-surface-container-lowest hover:bg-primary hover:text-on-primary text-on-surface font-label-sm text-label-sm shadow-sm transition-colors" type="button">
+            CBSE Schools near me
+          </button>
+<button class="px-3.5 py-1.5 rounded-full bg-surface-container-lowest hover:bg-primary hover:text-on-primary text-on-surface font-label-sm text-label-sm shadow-sm transition-colors" type="button">
+            Engineering Colleges Indore
+          </button>
+<button class="px-3.5 py-1.5 rounded-full bg-surface-container-lowest hover:bg-primary hover:text-on-primary text-on-surface font-label-sm text-label-sm shadow-sm transition-colors" type="button">
+            MPPSC Coaching Bhawarkuan
+          </button>
+<button class="px-3.5 py-1.5 rounded-full bg-surface-container-lowest hover:bg-primary hover:text-on-primary text-on-surface font-label-sm text-label-sm shadow-sm transition-colors" type="button">
+            Medical Colleges (MBBS)
+          </button>
+<button class="px-3.5 py-1.5 rounded-full bg-surface-container-lowest hover:bg-primary hover:text-on-primary text-on-surface font-label-sm text-label-sm shadow-sm transition-colors" type="button">
+            MBA Colleges Rau Bypass
+          </button>
+</div>
+</div>
+<!-- Right Column: Deep Purple ERP Hero Promo Card -->
+<div class="lg:col-span-5 relative">
+<div class="bg-inverse-surface rounded-3xl p-6 lg:p-8 text-inverse-on-surface shadow-2xl relative overflow-hidden flex flex-col justify-between min-h-[460px]">
+<!-- Background SVG subtle geometry -->
+<div class="absolute -right-16 -top-16 w-56 h-56 rounded-full bg-primary-container/20 blur-2xl"></div>
+<!-- Card Top Content -->
+<div class="relative z-10 flex flex-col items-start gap-space-sm">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-highest/20 text-surface-bright font-label-sm text-label-sm tracking-wider uppercase">
+<span class="material-symbols-outlined text-[14px] text-tertiary-fixed">hub</span>
+              Institute Cloud &amp; ERP
+            </span>
+<h2 class="font-headline-lg text-headline-lg text-surface-bright mt-2">
+              Manage your institute digitally
+            </h2>
+<p class="font-body-md text-body-md text-surface-dim mt-1">
+              Automate admissions, fee receipts, parent notifications, and exam schedules with IndoreEdu OS.
+            </p>
+<div class="mt-4 flex items-center gap-3">
+<button class="bg-tertiary-container hover:bg-tertiary text-on-tertiary font-label-lg text-label-lg px-7 py-3 rounded-full shadow-lg transition-transform hover:-translate-y-0.5 active:translate-y-0" type="button">
+                Request demo
+              </button>
+<a class="font-label-md text-label-md text-surface-dim hover:text-surface-bright underline underline-offset-4" data-path="for-institutes-portal" href="#">
+                View Feature Matrix
+              </a>
+</div>
+</div>
+<!-- Floating Notification Overlays -->
+<div class="relative z-10 flex flex-col gap-3 mt-6">
+<!-- Overlay Card 1 -->
+<div class="bg-surface-container-lowest text-on-surface rounded-2xl p-3.5 shadow-xl flex items-center justify-between gap-3 transform hover:scale-[1.02] transition-transform">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined text-[22px]">verified_user</span>
+</div>
+<div>
+<div class="font-label-lg text-label-lg text-on-surface">Verified institutional data</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">100% AISHE &amp; MP Board Sync</div>
+</div>
+</div>
+<span class="material-symbols-outlined text-[20px] text-primary shrink-0">check_circle</span>
+</div>
+<!-- Overlay Card 2 -->
+<div class="bg-surface-container-lowest text-on-surface rounded-2xl p-3.5 shadow-xl flex items-center justify-between gap-3 transform hover:scale-[1.02] transition-transform">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-tertiary-container shrink-0">
+<span class="material-symbols-outlined text-[22px]">receipt_long</span>
+</div>
+<div>
+<div class="font-label-lg text-label-lg text-on-surface">Fee receipt sent to parent</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">₹45,000 received instantly via UPI</div>
+</div>
+</div>
+<span class="font-label-sm text-label-sm text-primary font-bold px-2 py-0.5 rounded-full bg-surface-container shrink-0">Automated</span>
+</div>
+</div>
+<!-- Carousel Dots indicator -->
+<div class="relative z-10 flex items-center gap-2 mt-6 justify-center">
+<span class="w-4 h-1.5 rounded-full bg-tertiary-container"></span>
+<span class="w-1.5 h-1.5 rounded-full bg-surface-container-highest/40"></span>
+<span class="w-1.5 h-1.5 rounded-full bg-surface-container-highest/40"></span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 2: LATEST NEWS & NOTIFICATIONS -->
+<section class="w-full max-w-[1280px] mx-auto px-margin lg:px-margin-md py-space-lg">
+<div class="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mb-space-md">
+<div>
+<div class="inline-flex items-center gap-1.5 font-label-sm text-label-sm uppercase tracking-wider text-primary font-bold">
+<span class="material-symbols-outlined text-[16px]">campaign</span>
+          Indore Academic Radar
+        </div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface mt-1">
+          Latest news and notifications
+        </h2>
+<p class="font-body-md text-body-md text-on-surface-variant">
+          Real-time updates on MP Board dates, DAVV CET, JEE cutoffs &amp; admissions in Indore.
+        </p>
+</div>
+<!-- Arrow Controls -->
+<div class="flex items-center gap-2 shrink-0">
+<button aria-label="Previous News" class="w-10 h-10 rounded-full bg-surface-container-lowest text-on-surface shadow-sm hover:bg-surface-container flex items-center justify-center transition-colors" id="news-prev-btn">
+<span class="material-symbols-outlined text-[20px]">chevron_left</span>
+</button>
+<button aria-label="Next News" class="w-10 h-10 rounded-full bg-surface-container-lowest text-on-surface shadow-sm hover:bg-surface-container flex items-center justify-center transition-colors" id="news-next-btn">
+<span class="material-symbols-outlined text-[20px]">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Scrolling Rail Container -->
+<div class="flex gap-space-md overflow-x-auto pb-4 scroll-smooth focus:outline-none" id="news-scroll-container">
+<!-- Card 1 -->
+<article class="min-w-[280px] sm:min-w-[320px] max-w-[320px] bg-surface-container-lowest rounded-2xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between shrink-0">
+<div>
+<div class="flex items-center justify-between mb-3">
+<span class="px-2.5 py-1 rounded-full bg-surface-container text-primary font-label-sm text-label-sm font-bold">MP BOARD 2025</span>
+<span class="material-symbols-outlined text-outline-variant text-[18px]">bookmark_border</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface line-clamp-3 mb-2 font-bold hover:text-primary transition-colors cursor-pointer">
+            MPBSE 10th &amp; 12th Board Exam Timetable Released for Indore District Centers
+          </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
+            Detailed shift schedule announced for 114 examination centers across Indore, Sanwer, and Mhow sub-divisions.
+          </p>
+</div>
+<div class="pt-4 mt-4 border-t border-surface-container flex items-center justify-between font-label-sm text-label-sm text-outline">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[15px]">schedule</span>
+<span>Feb 18, 2025</span>
+</div>
+<span>4 min read</span>
+</div>
+</article>
+<!-- Card 2 -->
+<article class="min-w-[280px] sm:min-w-[320px] max-w-[320px] bg-surface-container-lowest rounded-2xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between shrink-0">
+<div>
+<div class="flex items-center justify-between mb-3">
+<span class="px-2.5 py-1 rounded-full bg-surface-container text-tertiary-container font-label-sm text-label-sm font-bold">DAVV ADMISSIONS</span>
+<span class="material-symbols-outlined text-outline-variant text-[18px]">bookmark_border</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface line-clamp-3 mb-2 font-bold hover:text-primary transition-colors cursor-pointer">
+            Devi Ahilya Vishwavidyalaya CET 2025 Registration Opens for UG &amp; PG Programs
+          </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
+            Candidates can now submit online applications for IIPS, IMS, and Pharmacy faculties via the student portal.
+          </p>
+</div>
+<div class="pt-4 mt-4 border-t border-surface-container flex items-center justify-between font-label-sm text-label-sm text-outline">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[15px]">schedule</span>
+<span>Feb 17, 2025</span>
+</div>
+<span>2 min read</span>
+</div>
+</article>
+<!-- Card 3 -->
+<article class="min-w-[280px] sm:min-w-[320px] max-w-[320px] bg-surface-container-lowest rounded-2xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between shrink-0">
+<div>
+<div class="flex items-center justify-between mb-3">
+<span class="px-2.5 py-1 rounded-full bg-surface-container text-primary font-label-sm text-label-sm font-bold">COACHING ALERT</span>
+<span class="material-symbols-outlined text-outline-variant text-[18px]">bookmark_border</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface line-clamp-3 mb-2 font-bold hover:text-primary transition-colors cursor-pointer">
+            Bhawarkuan Hub Coaching Institutes Announce Merit Scholarships for JEE/NEET Aspirants
+          </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
+            Up to 90% fee waivers available based on screening tests conducted throughout this upcoming weekend.
+          </p>
+</div>
+<div class="pt-4 mt-4 border-t border-surface-container flex items-center justify-between font-label-sm text-label-sm text-outline">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[15px]">schedule</span>
+<span>Feb 15, 2025</span>
+</div>
+<span>3 min read</span>
+</div>
+</article>
+<!-- Card 4 -->
+<article class="min-w-[280px] sm:min-w-[320px] max-w-[320px] bg-surface-container-lowest rounded-2xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between shrink-0">
+<div>
+<div class="flex items-center justify-between mb-3">
+<span class="px-2.5 py-1 rounded-full bg-surface-container text-tertiary-container font-label-sm text-label-sm font-bold">IIT INDORE</span>
+<span class="material-symbols-outlined text-outline-variant text-[18px]">bookmark_border</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface line-clamp-3 mb-2 font-bold hover:text-primary transition-colors cursor-pointer">
+            IIT Indore launches new B.Tech in Space Sciences &amp; AI Engineering for 2025
+          </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
+            Simrol campus expands intake capacity with pioneering interdisciplinary labs funded under National Mission.
+          </p>
+</div>
+<div class="pt-4 mt-4 border-t border-surface-container flex items-center justify-between font-label-sm text-label-sm text-outline">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[15px]">schedule</span>
+<span>Feb 14, 2025</span>
+</div>
+<span>5 min read</span>
+</div>
+</article>
+</div>
+</section>
+<!-- SECTION 3: TOP INSTITUTES IN INDORE -->
+<section class="w-full max-w-[1280px] mx-auto px-margin lg:px-margin-md py-space-xl">
+<div class="flex flex-col gap-space-md mb-space-md">
+<div class="flex flex-col md:flex-row items-start md:items-end justify-between gap-4">
+<div>
+<h2 class="font-headline-xl text-headline-xl text-on-surface font-extrabold tracking-tight">
+            Top institutes in Indore
+          </h2>
+<p class="font-body-md text-body-md text-on-surface-variant">
+            Discover verified rankings, accreditations, honest parent ratings, and admission cutoffs.
+          </p>
+</div>
+<!-- Slider Arrows -->
+<div class="hidden sm:flex items-center gap-2">
+<button aria-label="Previous Institutes" class="w-10 h-10 rounded-full bg-surface-container-lowest text-on-surface shadow-sm hover:bg-surface-container flex items-center justify-center transition-colors" id="inst-prev-btn">
+<span class="material-symbols-outlined text-[20px]">chevron_left</span>
+</button>
+<button aria-label="Next Institutes" class="w-10 h-10 rounded-full bg-surface-container-lowest text-on-surface shadow-sm hover:bg-surface-container flex items-center justify-center transition-colors" id="inst-next-btn">
+<span class="material-symbols-outlined text-[20px]">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Locality Filter Tabs -->
+<div class="flex items-center gap-2 overflow-x-auto pb-2">
+<button class="locality-filter px-4 py-2 rounded-full bg-primary text-on-primary font-label-md text-label-md shadow-sm shrink-0 font-bold" type="button">
+          All Localities
+        </button>
+<button class="locality-filter px-4 py-2 rounded-full bg-surface-container-lowest text-on-surface-variant hover:text-on-surface font-label-md text-label-md shadow-sm shrink-0" type="button">
+          Vijay Nagar
+        </button>
+<button class="locality-filter px-4 py-2 rounded-full bg-surface-container-lowest text-on-surface-variant hover:text-on-surface font-label-md text-label-md shadow-sm shrink-0" type="button">
+          Bhawarkuan
+        </button>
+<button class="locality-filter px-4 py-2 rounded-full bg-surface-container-lowest text-on-surface-variant hover:text-on-surface font-label-md text-label-md shadow-sm shrink-0" type="button">
+          Palasia
+        </button>
+<button class="locality-filter px-4 py-2 rounded-full bg-surface-container-lowest text-on-surface-variant hover:text-on-surface font-label-md text-label-md shadow-sm shrink-0" type="button">
+          Rau &amp; Bypass
+        </button>
+<button class="locality-filter px-4 py-2 rounded-full bg-surface-container-lowest text-on-surface-variant hover:text-on-surface font-label-md text-label-md shadow-sm shrink-0" type="button">
+          Super Corridor
+        </button>
+</div>
+</div>
+<!-- Institute Cards Grid / Carousel -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-space-lg" id="inst-scroll-container">
+<!-- Institute Card 1 -->
+<div class="bg-surface-container-lowest rounded-2xl p-space-md shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group">
+<div>
+<!-- Visual Header -->
+<div class="flex items-center justify-between mb-4">
+<div class="w-14 h-14 rounded-xl bg-surface-container flex items-center justify-center font-display-lg text-[22px] font-extrabold text-primary shadow-inner">
+              DC
+            </div>
+<div class="flex items-center gap-1.5">
+<span class="px-2 py-0.5 rounded-full bg-surface-container text-primary font-label-sm text-label-sm font-bold inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">verified</span> Verified
+              </span>
+<span class="px-2 py-0.5 rounded-full bg-tertiary-fixed text-tertiary-container font-label-sm text-label-sm font-bold">
+                Popular
+              </span>
+</div>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold group-hover:text-primary transition-colors">
+            The Daly College
+          </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">
+            Residency Area, Indore • CBSE / CIE Heritage Boarding
+          </p>
+<!-- Metrics Row -->
+<div class="mt-4 flex items-center justify-between bg-surface-container rounded-xl p-3">
+<div class="flex items-center gap-1 text-on-surface font-label-md text-label-md font-bold">
+<span class="material-symbols-outlined text-[18px] text-tertiary-container" style="font-variation-settings: 'FILL' 1;">star</span>
+<span>4.9</span>
+<span class="text-outline font-normal text-body-sm">(420 reviews)</span>
+</div>
+<div class="text-right">
+<div class="font-label-sm text-label-sm text-outline">Fee Range</div>
+<div class="font-label-md text-label-md text-on-surface font-bold">₹2.2L - ₹3.8L / yr</div>
+</div>
+</div>
+</div>
+<div class="mt-5 pt-4 border-t border-surface-container flex items-center gap-2">
+<button class="flex-1 bg-tertiary-container hover:bg-tertiary text-on-tertiary font-label-sm text-label-sm font-bold py-2.5 rounded-full shadow-sm transition-all text-center" type="button">
+            Apply Now
+          </button>
+<button class="flex-1 bg-surface-container hover:bg-surface-container-high text-primary font-label-sm text-label-sm font-bold py-2.5 rounded-full transition-all text-center" type="button">
+            View Brochure
+          </button>
+</div>
+</div>
+<!-- Institute Card 2 -->
+<div class="bg-surface-container-lowest rounded-2xl p-space-md shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group">
+<div>
+<!-- Visual Header -->
+<div class="flex items-center justify-between mb-4">
+<div class="w-14 h-14 rounded-xl bg-surface-container flex items-center justify-center font-display-lg text-[18px] font-extrabold text-primary shadow-inner">
+              SGS
+            </div>
+<div class="flex items-center gap-1.5">
+<span class="px-2 py-0.5 rounded-full bg-surface-container text-primary font-label-sm text-label-sm font-bold inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">verified</span> Verified
+              </span>
+<span class="px-2 py-0.5 rounded-full bg-secondary-fixed text-primary font-label-sm text-label-sm font-bold">
+                Top Engg
+              </span>
+</div>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold group-hover:text-primary transition-colors line-clamp-1">
+            Shri Govindram Seksaria Institute of Tech &amp; Sci
+          </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">
+            Vallabh Nagar / Park Road, Indore • Govt. Aided Autonomous
+          </p>
+<!-- Metrics Row -->
+<div class="mt-4 flex items-center justify-between bg-surface-container rounded-xl p-3">
+<div class="flex items-center gap-1 text-on-surface font-label-md text-label-md font-bold">
+<span class="material-symbols-outlined text-[18px] text-tertiary-container" style="font-variation-settings: 'FILL' 1;">star</span>
+<span>4.7</span>
+<span class="text-outline font-normal text-body-sm">(890 reviews)</span>
+</div>
+<div class="text-right">
+<div class="font-label-sm text-label-sm text-outline">Fee Range</div>
+<div class="font-label-md text-label-md text-on-surface font-bold">₹85,000 - ₹1.1L / yr</div>
+</div>
+</div>
+</div>
+<div class="mt-5 pt-4 border-t border-surface-container flex items-center gap-2">
+<button class="flex-1 bg-tertiary-container hover:bg-tertiary text-on-tertiary font-label-sm text-label-sm font-bold py-2.5 rounded-full shadow-sm transition-all text-center" type="button">
+            Apply Now
+          </button>
+<button class="flex-1 bg-surface-container hover:bg-surface-container-high text-primary font-label-sm text-label-sm font-bold py-2.5 rounded-full transition-all text-center" type="button">
+            Cutoff Trends
+          </button>
+</div>
+</div>
+<!-- Institute Card 3 -->
+<div class="bg-surface-container-lowest rounded-2xl p-space-md shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group">
+<div>
+<!-- Visual Header -->
+<div class="flex items-center justify-between mb-4">
+<div class="w-14 h-14 rounded-xl bg-surface-container flex items-center justify-center font-display-lg text-[20px] font-extrabold text-tertiary-container shadow-inner">
+              ALN
+            </div>
+<div class="flex items-center gap-1.5">
+<span class="px-2 py-0.5 rounded-full bg-surface-container text-primary font-label-sm text-label-sm font-bold inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">verified</span> Verified
+              </span>
+<span class="px-2 py-0.5 rounded-full bg-surface-dim text-on-surface font-label-sm text-label-sm font-bold">
+                Premier Coaching
+              </span>
+</div>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold group-hover:text-primary transition-colors">
+            Allen Career Institute
+          </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">
+            Bhawarkuan &amp; Palasia Hubs • JEE Advanced &amp; NEET UG
+          </p>
+<!-- Metrics Row -->
+<div class="mt-4 flex items-center justify-between bg-surface-container rounded-xl p-3">
+<div class="flex items-center gap-1 text-on-surface font-label-md text-label-md font-bold">
+<span class="material-symbols-outlined text-[18px] text-tertiary-container" style="font-variation-settings: 'FILL' 1;">star</span>
+<span>4.8</span>
+<span class="text-outline font-normal text-body-sm">(1,250 reviews)</span>
+</div>
+<div class="text-right">
+<div class="font-label-sm text-label-sm text-outline">Tuition Fee</div>
+<div class="font-label-md text-label-md text-on-surface font-bold">₹90,000 - ₹1.6L / crs</div>
+</div>
+</div>
+</div>
+<div class="mt-5 pt-4 border-t border-surface-container flex items-center gap-2">
+<button class="w-full bg-tertiary-container hover:bg-tertiary text-on-tertiary font-label-sm text-label-sm font-bold py-2.5 rounded-full shadow-sm transition-all text-center" type="button">
+            Book Free Demo Class
+          </button>
+</div>
+</div>
+<!-- Institute Card 4 -->
+<div class="bg-surface-container-lowest rounded-2xl p-space-md shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group">
+<div>
+<!-- Visual Header -->
+<div class="flex items-center justify-between mb-4">
+<div class="w-14 h-14 rounded-xl bg-surface-container flex items-center justify-center font-display-lg text-[18px] font-extrabold text-primary shadow-inner">
+              MGM
+            </div>
+<div class="flex items-center gap-1.5">
+<span class="px-2 py-0.5 rounded-full bg-surface-container text-primary font-label-sm text-label-sm font-bold inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">verified</span> Verified
+              </span>
+<span class="px-2 py-0.5 rounded-full bg-tertiary-fixed text-tertiary-container font-label-sm text-label-sm font-bold">
+                Top Medical
+              </span>
+</div>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold group-hover:text-primary transition-colors">
+            Mahatma Gandhi Memorial Medical College
+          </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">
+            AB Road, Indore • Govt. Medical College &amp; MY Hospital
+          </p>
+<!-- Metrics Row -->
+<div class="mt-4 flex items-center justify-between bg-surface-container rounded-xl p-3">
+<div class="flex items-center gap-1 text-on-surface font-label-md text-label-md font-bold">
+<span class="material-symbols-outlined text-[18px] text-tertiary-container" style="font-variation-settings: 'FILL' 1;">star</span>
+<span>4.8</span>
+<span class="text-outline font-normal text-body-sm">(640 reviews)</span>
+</div>
+<div class="text-right">
+<div class="font-label-sm text-label-sm text-outline">State Quota Fee</div>
+<div class="font-label-md text-label-md text-on-surface font-bold">₹1.15L / yr</div>
+</div>
+</div>
+</div>
+<div class="mt-5 pt-4 border-t border-surface-container flex items-center gap-2">
+<button class="w-full bg-surface-container hover:bg-surface-container-high text-primary font-label-sm text-label-sm font-bold py-2.5 rounded-full transition-all text-center" type="button">
+            View Admission Details
+          </button>
+</div>
+</div>
+<!-- Institute Card 5 -->
+<div class="bg-surface-container-lowest rounded-2xl p-space-md shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group">
+<div>
+<!-- Visual Header -->
+<div class="flex items-center justify-between mb-4">
+<div class="w-14 h-14 rounded-xl bg-surface-container flex items-center justify-center font-display-lg text-[18px] font-extrabold text-primary shadow-inner">
+              IIPS
+            </div>
+<div class="flex items-center gap-1.5">
+<span class="px-2 py-0.5 rounded-full bg-surface-container text-primary font-label-sm text-label-sm font-bold inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">verified</span> Verified
+              </span>
+<span class="px-2 py-0.5 rounded-full bg-secondary-fixed text-primary font-label-sm text-label-sm font-bold">
+                A++ NAAC
+              </span>
+</div>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold group-hover:text-primary transition-colors">
+            International Institute of Professional Studies
+          </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">
+            Takshashila Campus, DAVV, Khandwa Road • Management &amp; IT
+          </p>
+<!-- Metrics Row -->
+<div class="mt-4 flex items-center justify-between bg-surface-container rounded-xl p-3">
+<div class="flex items-center gap-1 text-on-surface font-label-md text-label-md font-bold">
+<span class="material-symbols-outlined text-[18px] text-tertiary-container" style="font-variation-settings: 'FILL' 1;">star</span>
+<span>4.6</span>
+<span class="text-outline font-normal text-body-sm">(510 reviews)</span>
+</div>
+<div class="text-right">
+<div class="font-label-sm text-label-sm text-outline">Fee Range</div>
+<div class="font-label-md text-label-md text-on-surface font-bold">₹75,000 - ₹1.3L / yr</div>
+</div>
+</div>
+</div>
+<div class="mt-5 pt-4 border-t border-surface-container flex items-center gap-2">
+<button class="flex-1 bg-tertiary-container hover:bg-tertiary text-on-tertiary font-label-sm text-label-sm font-bold py-2.5 rounded-full shadow-sm transition-all text-center" type="button">
+            Apply Now
+          </button>
+<button class="flex-1 bg-surface-container hover:bg-surface-container-high text-primary font-label-sm text-label-sm font-bold py-2.5 rounded-full transition-all text-center" type="button">
+            View Brochure
+          </button>
+</div>
+</div>
+<!-- Institute Card 6 (Bento highlight feature) -->
+<div class="bg-surface-container rounded-2xl p-space-md shadow-sm flex flex-col justify-between border-2 border-dashed border-primary/30">
+<div>
+<div class="w-12 h-12 rounded-xl bg-primary text-on-primary flex items-center justify-center mb-4">
+<span class="material-symbols-outlined text-[26px]">add_location_alt</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">
+            Can't find your institute?
+          </h3>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2">
+            Are you a school principal, coaching director, or college dean in Indore? List your campus on IndoreEdu today and connect with 60,000+ local students.
+          </p>
+</div>
+<div class="mt-6">
+<a class="block w-full bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md font-bold py-3 rounded-full text-center transition-all shadow-md" data-path="for-institutes-portal" href="#">
+            Claim Your Free Profile
+          </a>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 4: FOR INSTITUTES ERP & MANAGEMENT -->
+<section class="w-full max-w-[1280px] mx-auto px-margin lg:px-margin-md py-space-xl">
+<div class="text-center max-w-3xl mx-auto mb-space-xl">
+<span class="inline-block px-3.5 py-1 rounded-full bg-surface-container text-primary font-label-sm text-label-sm font-bold uppercase tracking-wider mb-2">
+        IndoreEdu Institutional OS
+      </span>
+<h2 class="font-display-lg text-headline-xl lg:text-display-lg text-on-surface font-extrabold tracking-tight">
+        Everything you need to run your school, college, or coaching institute
+      </h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-3">
+        A single unified operating system trusted by 350+ educational leaders across Indore and Malwa region.
+      </p>
+</div>
+<!-- 6 Feature Cards Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-space-lg mb-space-lg">
+<!-- Feature 1 -->
+<div class="bg-surface-container-lowest rounded-2xl p-6 shadow-sm hover:shadow-lg transition-all group">
+<div class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-primary mb-4 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[26px]">groups</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold mb-2">
+          Admissions CRM
+        </h3>
+<p class="font-body-md text-body-md text-on-surface-variant">
+          Digital lead pipeline, automated WhatsApp follow-ups, enquiry tracker, and multi-source attribution for walk-ins and web leads.
+        </p>
+</div>
+<!-- Feature 2 -->
+<div class="bg-surface-container-lowest rounded-2xl p-6 shadow-sm hover:shadow-lg transition-all group">
+<div class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-primary mb-4 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[26px]">fingerprint</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold mb-2">
+          Smart Attendance
+        </h3>
+<p class="font-body-md text-body-md text-on-surface-variant">
+          RFID gates, biometric hardware sync &amp; one-tap teacher app attendance with instantaneous parent absent SMS delivery.
+        </p>
+</div>
+<!-- Feature 3 -->
+<div class="bg-surface-container-lowest rounded-2xl p-6 shadow-sm hover:shadow-lg transition-all group">
+<div class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-primary mb-4 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[26px]">payments</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold mb-2">
+          Fees &amp; Online Receipts
+        </h3>
+<p class="font-body-md text-body-md text-on-surface-variant">
+          Automated installment schedules, zero-reconciliation UPI payment QR codes, GST-compliant e-receipts and SMS dues reminders.
+        </p>
+</div>
+<!-- Feature 4 -->
+<div class="bg-surface-container-lowest rounded-2xl p-6 shadow-sm hover:shadow-lg transition-all group">
+<div class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-primary mb-4 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[26px]">fact_check</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold mb-2">
+          Exams &amp; Report Cards
+        </h3>
+<p class="font-body-md text-body-md text-on-surface-variant">
+          NEP 2020-compliant marksheet generators, online exam portal, test analysis charts, and instant parent download access.
+        </p>
+</div>
+<!-- Feature 5 -->
+<div class="bg-surface-container-lowest rounded-2xl p-6 shadow-sm hover:shadow-lg transition-all group">
+<div class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-primary mb-4 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[26px]">devices</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold mb-2">
+          Parent &amp; Student App
+        </h3>
+<p class="font-body-md text-body-md text-on-surface-variant">
+          Branded mobile apps featuring live GPS bus tracking along Indore routes, digital diary, circulars, and teacher chat.
+        </p>
+</div>
+<!-- Feature 6 -->
+<div class="bg-surface-container-lowest rounded-2xl p-6 shadow-sm hover:shadow-lg transition-all group">
+<div class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-primary mb-4 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[26px]">badge</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold mb-2">
+          Staff &amp; Payroll Management
+        </h3>
+<p class="font-body-md text-body-md text-on-surface-variant">
+          Faculty leave workflows, substitution planners, biometric punch tracking, and automated 1-click salary slip generation.
+        </p>
+</div>
+</div>
+<!-- ERP Banner CTA -->
+<div class="bg-inverse-surface rounded-3xl p-6 md:p-8 text-inverse-on-surface flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
+<div class="flex items-center gap-4">
+<div class="w-14 h-14 rounded-2xl bg-surface-container-highest/20 flex items-center justify-center text-surface-bright shrink-0">
+<span class="material-symbols-outlined text-[32px]">school</span>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md text-surface-bright font-bold">
+            Ready to digitize your campus in 72 hours?
+          </h3>
+<p class="font-body-md text-body-md text-surface-dim">
+            Get personalized onboarding support from our Indore-based technical operations team.
+          </p>
+</div>
+</div>
+<div class="flex items-center gap-3 shrink-0 w-full md:w-auto">
+<button class="flex-1 md:flex-initial bg-tertiary-container hover:bg-tertiary text-on-tertiary font-label-lg text-label-lg px-6 py-3 rounded-full shadow-md transition-all" type="button">
+          Schedule Free Campus Demo
+        </button>
+<button class="flex-1 md:flex-initial bg-surface-container-highest/20 hover:bg-surface-container-highest/30 text-surface-bright font-label-lg text-label-lg px-5 py-3 rounded-full transition-all" type="button">
+          Calculate ROI
+        </button>
+</div>
+</div>
+</section>
+<!-- SECTION 5: DOWNLOAD THE APP -->
+<section class="w-full max-w-[1280px] mx-auto px-margin lg:px-margin-md py-space-xl">
+<div class="bg-surface-container rounded-[2rem] p-space-lg lg:p-space-xl grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-center relative overflow-hidden">
+<!-- Left side: Value proposition -->
+<div class="lg:col-span-6 flex flex-col gap-space-md">
+<div class="inline-flex items-center gap-2 font-label-sm text-label-sm text-primary font-bold uppercase tracking-wider">
+<span class="material-symbols-outlined text-[18px]">smartphone</span>
+          Mobile Experience
+        </div>
+<h2 class="font-display-lg text-display-lg text-on-surface font-extrabold tracking-tight">
+          Carry Indore's entire education ecosystem in your pocket
+        </h2>
+<ul class="space-y-3">
+<li class="flex items-start gap-3">
+<span class="w-6 h-6 rounded-full bg-surface-container-lowest text-primary flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+<span class="material-symbols-outlined text-[16px]">check</span>
+</span>
+<span class="font-body-md text-body-md text-on-surface">
+<strong>Instant admission alerts:</strong> Real-time push updates for counseling dates, forms, and merit lists.
+            </span>
+</li>
+<li class="flex items-start gap-3">
+<span class="w-6 h-6 rounded-full bg-surface-container-lowest text-primary flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+<span class="material-symbols-outlined text-[16px]">check</span>
+</span>
+<span class="font-body-md text-body-md text-on-surface">
+<strong>Direct fee payment via UPI:</strong> Pay term fees without transaction surcharges and store receipts offline.
+            </span>
+</li>
+<li class="flex items-start gap-3">
+<span class="w-6 h-6 rounded-full bg-surface-container-lowest text-primary flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+<span class="material-symbols-outlined text-[16px]">check</span>
+</span>
+<span class="font-body-md text-body-md text-on-surface">
+<strong>Verified alumni reviews:</strong> Genuine insights on faculty, mess food, hostel quality &amp; placement records.
+            </span>
+</li>
+</ul>
+<!-- App Store Buttons -->
+<div class="flex flex-wrap items-center gap-3 pt-2">
+<a class="px-5 py-2.5 rounded-full bg-surface-container-lowest text-on-surface hover:bg-surface-bright shadow-sm flex items-center gap-2.5 transition-all" href="#">
+<span class="material-symbols-outlined text-[24px]">shop</span>
+<div class="text-left">
+<div class="font-label-sm text-[10px] text-outline leading-tight">GET IT ON</div>
+<div class="font-label-md text-label-md font-bold leading-tight">Google Play</div>
+</div>
+</a>
+<a class="px-5 py-2.5 rounded-full bg-surface-container-lowest text-on-surface hover:bg-surface-bright shadow-sm flex items-center gap-2.5 transition-all" href="#">
+<span class="material-symbols-outlined text-[24px]">phone_iphone</span>
+<div class="text-left">
+<div class="font-label-sm text-[10px] text-outline leading-tight">DOWNLOAD ON</div>
+<div class="font-label-md text-label-md font-bold leading-tight">Apple App Store</div>
+</div>
+</a>
+</div>
+</div>
+<!-- Center & Right: QR Code and Device Preview -->
+<div class="lg:col-span-6 flex flex-col sm:flex-row items-center justify-center gap-space-lg">
+<!-- QR Code Card -->
+<div class="bg-surface-container-lowest rounded-2xl p-5 shadow-lg flex flex-col items-center text-center max-w-[220px]">
+<!-- Geometric QR Placeholder -->
+<div class="w-36 h-36 bg-surface-container rounded-xl p-2 flex items-center justify-center relative shadow-inner">
+<svg class="w-full h-full text-on-surface" fill="none" viewbox="0 0 100 100">
+<!-- QR Patterns -->
+<rect height="28" rx="4" stroke="currentColor" stroke-width="4" width="28" x="5" y="5"></rect>
+<rect fill="currentColor" height="12" width="12" x="13" y="13"></rect>
+<rect height="28" rx="4" stroke="currentColor" stroke-width="4" width="28" x="67" y="5"></rect>
+<rect fill="currentColor" height="12" width="12" x="75" y="13"></rect>
+<rect height="28" rx="4" stroke="currentColor" stroke-width="4" width="28" x="5" y="67"></rect>
+<rect fill="currentColor" height="12" width="12" x="13" y="75"></rect>
+<rect fill="currentColor" height="20" width="6" x="42" y="12"></rect>
+<rect fill="currentColor" height="6" width="20" x="12" y="44"></rect>
+<rect fill="currentColor" height="16" rx="2" width="16" x="46" y="46"></rect>
+<rect fill="currentColor" height="8" width="20" x="68" y="44"></rect>
+<rect fill="currentColor" height="20" width="8" x="42" y="72"></rect>
+<rect fill="currentColor" height="18" width="18" x="72" y="72"></rect>
+</svg>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface font-bold mt-3">Scan to Install App</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">iOS &amp; Android Supported</span>
+<div class="mt-2 text-tertiary-container font-label-sm text-label-sm font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span>4.8 Rating (18.4K+ reviews)</span>
+</div>
+</div>
+<!-- Sleek Phone Mockup Component -->
+<div class="w-64 bg-inverse-surface rounded-[2.5rem] p-3 shadow-2xl relative">
+<!-- Screen Glass -->
+<div class="bg-surface rounded-[2rem] p-3 flex flex-col gap-2 overflow-hidden h-[340px]">
+<!-- Phone Status Bar -->
+<div class="flex items-center justify-between text-[10px] text-outline font-bold px-1">
+<span>9:41</span>
+<div class="w-12 h-3 bg-inverse-surface rounded-full"></div>
+<span>5G</span>
+</div>
+<!-- Mini App Header -->
+<div class="flex items-center justify-between pt-1">
+<span class="font-label-sm text-label-sm font-extrabold text-primary">IndoreEdu</span>
+<div class="w-5 h-5 rounded-full bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[12px] text-on-surface">notifications</span>
+</div>
+</div>
+<!-- Mini Search -->
+<div class="bg-surface-container-lowest rounded-full px-2.5 py-1 text-[11px] text-outline flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-[13px] text-primary">search</span>
+<span>Find MPPSC in Indore...</span>
+</div>
+<!-- Mini Feed Items -->
+<div class="flex flex-col gap-1.5 mt-1">
+<div class="bg-surface-container-lowest rounded-xl p-2 shadow-sm">
+<div class="flex items-center justify-between text-[9px] text-primary font-bold">
+<span>DAVV Indore</span>
+<span class="text-tertiary-container">★ 4.6</span>
+</div>
+<div class="text-[11px] font-bold text-on-surface leading-tight mt-0.5">CET 2025 Forms Active</div>
+<div class="text-[9px] text-outline mt-0.5">Last date: 15 March</div>
+</div>
+<div class="bg-surface-container-lowest rounded-xl p-2 shadow-sm">
+<div class="flex items-center justify-between text-[9px] text-primary font-bold">
+<span>SGSITS Indore</span>
+<span class="text-tertiary-container">★ 4.7</span>
+</div>
+<div class="text-[11px] font-bold text-on-surface leading-tight mt-0.5">JEE Cutoff 2024 Trends</div>
+<div class="text-[9px] text-outline mt-0.5">Round 1 Opening Rank: 8,420</div>
+</div>
+<div class="bg-surface-container-lowest rounded-xl p-2 shadow-sm">
+<div class="flex items-center justify-between text-[9px] text-primary font-bold">
+<span>Indore District</span>
+<span>Scholarship</span>
+</div>
+<div class="text-[11px] font-bold text-on-surface leading-tight mt-0.5">Medhavi Chhatra Yojana</div>
+<div class="text-[9px] text-outline mt-0.5">100% Tuition Assistance</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Interactive Scroll Behavior Script -->
+<script>
+    (function () {
+      // News Slider Controls
+      var newsContainer = document.getElementById('news-scroll-container');
+      var newsPrev = document.getElementById('news-prev-btn');
+      var newsNext = document.getElementById('news-next-btn');
+
+      if (newsContainer && newsPrev && newsNext) {
+        newsPrev.addEventListener('click', function () {
+          newsContainer.scrollBy({ left: -340, behavior: 'smooth' });
+        });
+        newsNext.addEventListener('click', function () {
+          newsContainer.scrollBy({ left: 340, behavior: 'smooth' });
+        });
+      }
+
+      // Locality Filter interactive selection states
+      var localityFilters = document.querySelectorAll('.locality-filter');
+      localityFilters.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          localityFilters.forEach(function (b) {
+            b.classList.remove('bg-primary', 'text-on-primary', 'font-bold');
+            b.classList.add('bg-surface-container-lowest', 'text-on-surface-variant');
+          });
+          btn.classList.remove('bg-surface-container-lowest', 'text-on-surface-variant');
+          btn.classList.add('bg-primary', 'text-on-primary', 'font-bold');
+        });
+      });
+    })();
+  </script>
+</div></main><footer class="w-full bg-inverse-surface text-inverse-on-surface mt-space-xl"><div class="max-w-[1280px] mx-auto px-margin lg:px-margin-md py-space-xl"><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-space-lg mb-space-xl"><div><h4 class="font-headline-sm text-headline-sm text-surface-bright mb-space-md font-bold">Popular Localities</h4><ul class="space-y-space-xs font-body-sm text-body-sm text-outline-variant"><li class="hover:text-surface-bright transition-colors"><a data-path="coaching-institutes" href="#">Vijay Nagar Hub</a></li><li class="hover:text-surface-bright transition-colors"><a data-path="coaching-institutes" href="#">Bhawarkuan Coaching Belt</a></li><li class="hover:text-surface-bright transition-colors"><a data-path="explore-directory" href="#">Old Palasia &amp; New Palasia</a></li><li class="hover:text-surface-bright transition-colors"><a data-path="schools-directory" href="#">Annapurna &amp; Rajendra Nagar</a></li><li class="hover:text-surface-bright transition-colors"><a data-path="colleges-directory" href="#">Rau Knowledge Corridor</a></li><li class="hover:text-surface-bright transition-colors"><a data-path="colleges-directory" href="#">Super Corridor Tech Campuses</a></li><li class="hover:text-surface-bright transition-colors"><a data-path="schools-directory" href="#">Geeta Bhawan &amp; AB Road</a></li><li class="hover:text-surface-bright transition-colors"><a data-path="explore-directory" href="#">Sapna Sangeeta</a></li></ul></div><div><h4 class="font-headline-sm text-headline-sm text-surface-bright mb-space-md font-bold">Top Courses &amp; Exams</h4><ul class="space-y-space-xs font-body-sm text-body-sm text-outline-variant"><li class="hover:text-surface-bright transition-colors"><a data-path="schools-directory" href="#">MP Board (10th &amp; 12th)</a></li><li class="hover:text-surface-bright transition-colors"><a data-path="engineering-institutes" href="#">JEE Main &amp; Advanced</a></li><li class="hover:text-surface-bright transition-colors"><a data-path="medical-colleges" href="#">NEET UG &amp; PG Prep</a></li><li class="hover:text-surface-bright transition-colors"><a data-path="coaching-institutes" href="#">MPPSC Civil Services</a></li><li class="hover:text-surface-bright transition-colors"><a data-path="management-institutes" href="#">CAT &amp; IPMAT (IIM Indore)</a></li><li class="hover:text-surface-bright transition-colors"><a data-path="universities-listing" href="#">CUET Undergraduate</a></li></ul></div><div><h4 class="font-headline-sm text-headline-sm text-surface-bright mb-space-md font-bold">For Institutes</h4><ul class="space-y-space-xs font-body-sm text-body-sm text-outline-variant"><li class="hover:text-surface-bright transition-colors"><a data-path="for-institutes-portal" href="#">List Your Institute</a></li><li class="hover:text-surface-bright transition-colors"><a data-path="for-institutes-portal" href="#">Admin Portal Login</a></li><li class="hover:text-surface-bright transition-colors"><a data-path="for-institutes-portal" href="#">Book School ERP Demo</a></li><li class="hover:text-surface-bright transition-colors"><a data-path="for-institutes-portal" href="#">Lead Management &amp; Pricing</a></li><li class="hover:text-surface-bright transition-colors"><a data-path="for-institutes-portal" href="#">Verification Process</a></li></ul></div><div><h4 class="font-headline-sm text-headline-sm text-surface-bright mb-space-md font-bold">IndoreEdu &amp; Legal</h4><ul class="space-y-space-xs font-body-sm text-body-sm text-outline-variant"><li class="hover:text-surface-bright transition-colors"><a data-path="about-indore-edu" href="#">About IndoreEdu</a></li><li class="hover:text-surface-bright transition-colors"><a data-path="contact-us" href="#">Contact Support</a></li><li class="hover:text-surface-bright transition-colors"><a data-path="explore-directory" href="#">Student Scholarship Guide</a></li><li class="hover:text-surface-bright transition-colors"><a data-path="privacy-terms" href="#">Privacy Policy</a></li><li class="hover:text-surface-bright transition-colors"><a data-path="privacy-terms" href="#">Terms &amp; Conditions</a></li></ul></div></div><div class="pt-space-md border-t border-outline/30 flex flex-col md:flex-row items-center justify-between gap-space-sm"><div class="font-body-sm text-body-sm text-outline-variant">© 2025 IndoreEdu. Connecting students, parents &amp; educators across Indore (MP 09).</div><div class="flex items-center gap-space-md font-label-sm text-label-sm text-outline-variant"><a class="hover:text-surface-bright" data-path="privacy-terms" href="#">Privacy Policy</a><a class="hover:text-surface-bright" data-path="privacy-terms" href="#">Terms of Service</a><a class="hover:text-surface-bright" data-path="contact-us" href="#">Helpline (0731)</a></div></div></div></footer></body></html>
