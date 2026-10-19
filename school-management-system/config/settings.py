@@ -33,9 +33,7 @@ SECRET_KEY = os.environ.get(
 # added manually by vishal yadav
 DEBUG = os.environ.get("DEBUG", "True") == "True"
 
-# ALLOWED_HOSTS = []
-# added manually by vishal yadav
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -47,11 +45,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
     'core',
     'accounts',
     'schools',
     'academics',
     'imports',
+    'api',
 ]
 # added manually
 AUTH_USER_MODEL = 'accounts.User'
@@ -157,13 +157,3 @@ DATABASES = {
 }
 MEDIA_ROOT = BASE_DIR / "media"
 MEDIA_URL = "/media/"
-
-
-# added manually by vishal yadav
-CSRF_TRUSTED_ORIGINS = os.environ.get(
-    "CSRF_TRUSTED_ORIGINS",
-    ""
-).split(",") if os.environ.get("CSRF_TRUSTED_ORIGINS") else []
-
-
-SECRET_KEY = "JUhr2y5PPoRgTeI6YSNRboFs3KpTUqkT"
