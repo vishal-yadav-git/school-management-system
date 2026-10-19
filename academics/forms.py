@@ -1,7 +1,10 @@
 from django import forms
 
 from accounts.models import User
-from schools.models import School
+
+from .models import Teacher, Student, SchoolClass
+
+
 
 from .models import (
     Teacher,

@@ -150,13 +150,10 @@ MAILERS = {
 
 # added manually
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-        'OPTIONS': {
-            'timeout': 30,
-        },
-    }
+    'default': dj_database_url.config(
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+        conn_max_age=600,
+    )
 }
 MEDIA_ROOT = BASE_DIR / "media"
 MEDIA_URL = "/media/"
@@ -167,3 +164,6 @@ CSRF_TRUSTED_ORIGINS = os.environ.get(
     "CSRF_TRUSTED_ORIGINS",
     ""
 ).split(",") if os.environ.get("CSRF_TRUSTED_ORIGINS") else []
+
+
+SECRET_KEY = "JUhr2y5PPoRgTeI6YSNRboFs3KpTUqkT"
