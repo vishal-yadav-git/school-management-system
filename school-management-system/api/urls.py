@@ -8,6 +8,8 @@ from guardians import views as views_guardians
 from attendance import views as views_attendance
 from notices import views as views_notices
 from organizations import views as views_org
+from credentials import views as views_credentials
+from importers import views as views_importers
 
 urlpatterns = [
     # Auth
@@ -82,6 +84,16 @@ urlpatterns = [
     # Wave 2: Setup Wizard & Principal Classes
     path("setup/status/", views_org.setup_status, name="api_setup_status"),
     path("classes/", views_org.principal_classes, name="api_classes_principal"),
+
+    # Wave 2: Step 3 - Credentials & Security
+    path("credentials/reset-password/", views_credentials.principal_reset_password, name="api_principal_reset_password"),
+    path("auth/change-password/", views_credentials.change_password, name="api_change_password"),
+
+    # Wave 2: Step 4 - Importers (Templates, Preview, Confirm)
+    path("import/template/teachers/", views_importers.teacher_template_download, name="api_import_teacher_template"),
+    path("import/template/students/", views_importers.student_template_download, name="api_import_student_template"),
+    path("import/preview/", views_importers.import_preview, name="api_import_preview"),
+    path("import/confirm/", views_importers.import_confirm, name="api_import_confirm"),
 ]
 
 

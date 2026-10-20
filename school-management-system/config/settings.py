@@ -51,6 +51,8 @@ INSTALLED_APPS = [
     'attendance',
     'notices',
     'organizations',
+    'credentials',
+    'importers',
 ]
 # added manually
 AUTH_USER_MODEL = 'accounts.User'
@@ -61,6 +63,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'credentials.middleware.MustChangePasswordMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -167,6 +170,7 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
+        'credentials.permissions.MustChangePasswordPermission',
     ],
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
@@ -177,6 +181,9 @@ REST_FRAMEWORK = {
         'auth': '10/min',
         'guardian_claim': '5/hour',
         'register_org': '5/hour',
+        'password_reset': '20/hour',
+        'import_preview': '10/minute',
+        'import_confirm': '5/minute',
     },
 }
 
