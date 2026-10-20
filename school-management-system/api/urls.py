@@ -2,6 +2,8 @@ from django.urls import path
 
 from . import views
 from . import views_admin
+from academic_year import views as views_ay
+from audit import views as views_audit
 
 urlpatterns = [
     # Auth
@@ -43,4 +45,9 @@ urlpatterns = [
     # Excel / CSV Import Flow
     path("admin/import/preview/", views_admin.admin_import_preview, name="api_admin_import_preview"),
     path("admin/import/confirm/", views_admin.admin_import_confirm, name="api_admin_import_confirm"),
+
+    # Wave 1: Academic Year & Audit
+    path("academic-years/", views_ay.academic_years, name="api_academic_years"),
+    path("audit/", views_audit.audit_logs, name="api_audit_logs"),
 ]
+
