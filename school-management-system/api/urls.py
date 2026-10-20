@@ -4,6 +4,9 @@ from . import views
 from . import views_admin
 from academic_year import views as views_ay
 from audit import views as views_audit
+from guardians import views as views_guardians
+from attendance import views as views_attendance
+from notices import views as views_notices
 
 urlpatterns = [
     # Auth
@@ -49,5 +52,27 @@ urlpatterns = [
     # Wave 1: Academic Year & Audit
     path("academic-years/", views_ay.academic_years, name="api_academic_years"),
     path("audit/", views_audit.audit_logs, name="api_audit_logs"),
+
+    # Wave 1: Guardians
+    path("students/<int:pk>/guardians/", views_guardians.student_guardians, name="api_student_guardians"),
+    path("students/<int:pk>/guardians/<int:guardian_id>/", views_guardians.student_guardian_delete, name="api_student_guardian_delete"),
+    path("guardians/claim/", views_guardians.guardian_claim, name="api_guardian_claim"),
+    path("guardians/link-requests/", views_guardians.guardian_link_requests, name="api_guardian_link_requests"),
+    path("guardians/link-requests/<int:guardian_id>/approve/", views_guardians.guardian_approve, name="api_guardian_approve"),
+    path("guardians/link-requests/<int:guardian_id>/reject/", views_guardians.guardian_reject, name="api_guardian_reject"),
+    path("parent/children/", views_guardians.parent_children, name="api_parent_children"),
+
+    # Wave 1: Attendance
+    path("attendance/class/<int:class_id>/", views_attendance.class_attendance, name="api_class_attendance"),
+    path("attendance/summary/", views_attendance.attendance_summary, name="api_attendance_summary"),
+    path("attendance/trend/", views_attendance.attendance_trend, name="api_attendance_trend"),
+    path("attendance/student/<int:student_id>/", views_attendance.student_attendance, name="api_student_attendance"),
+
+    # Wave 1: Notices
+    path("notices/", views_notices.notices_list, name="api_notices_list"),
+    path("notices/<int:pk>/", views_notices.notice_detail, name="api_notice_detail"),
 ]
+
+
+
 

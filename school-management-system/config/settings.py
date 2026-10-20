@@ -46,6 +46,9 @@ INSTALLED_APPS = [
     'api',
     'academic_year',
     'audit',
+    'guardians',
+    'attendance',
+    'notices',
 ]
 # added manually
 AUTH_USER_MODEL = 'accounts.User'

@@ -24,3 +24,9 @@ class IsSuperuserOnly(BasePermission):
         u = request.user
         return bool(u and u.is_authenticated and u.is_superuser)
 
+
+class IsParent(BasePermission):
+    def has_permission(self, request, view):
+        u = request.user
+        return bool(u and u.is_authenticated and (u.is_superuser or getattr(u, "role", "") == "parent"))
+
