@@ -10,6 +10,8 @@ from notices import views as views_notices
 from organizations import views as views_org
 from credentials import views as views_credentials
 from importers import views as views_importers
+from teacher_assignments import views as views_ta
+from syllabus import views as views_syll
 
 urlpatterns = [
     # Auth
@@ -94,6 +96,16 @@ urlpatterns = [
     path("import/template/students/", views_importers.student_template_download, name="api_import_student_template"),
     path("import/preview/", views_importers.import_preview, name="api_import_preview"),
     path("import/confirm/", views_importers.import_confirm, name="api_import_confirm"),
+
+    # Wave 2: Step 5 - Teacher Permissions & Assignments
+    path("teachers/<int:teacher_id>/permissions/", views_ta.teacher_permissions_view, name="api_teacher_permissions"),
+    path("classes/<int:class_id>/subject-teachers/", views_ta.class_subject_teachers_view, name="api_class_subject_teachers"),
+
+    # Wave 2: Step 6 - Syllabus Management
+    path("subjects/<int:subject_id>/syllabus/", views_syll.subject_syllabus_view, name="api_subject_syllabus"),
+    path("subjects/<int:subject_id>/units/", views_syll.create_unit_view, name="api_create_unit"),
+    path("units/<int:unit_id>/topics/", views_syll.create_topic_view, name="api_create_topic"),
+    path("topics/<int:topic_id>/status/", views_syll.update_topic_status_view, name="api_update_topic_status"),
 ]
 
 

@@ -53,6 +53,8 @@ INSTALLED_APPS = [
     'organizations',
     'credentials',
     'importers',
+    'teacher_assignments',
+    'syllabus',
 ]
 # added manually
 AUTH_USER_MODEL = 'accounts.User'

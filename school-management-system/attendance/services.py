@@ -27,11 +27,19 @@ def upsert_attendance_session(school_class, date, records_data, actor, request=N
 
     # Teacher permission checks
     is_principal_or_su = actor.is_superuser or getattr(actor, "role", "") in ("principal", "admin")
+    has_backdate_perm = False
+    if not is_principal_or_su and hasattr(actor, "teacher_profile"):
+        try:
+            from teacher_assignments.services import has_teacher_permission
+            has_backdate_perm = has_teacher_permission(actor.teacher_profile, "attendance_backdate")
+        except Exception:
+            has_backdate_perm = False
+
     if not is_principal_or_su:
         # Teacher must be class_teacher
         if not school_class.class_teacher or school_class.class_teacher.user_id != actor.id:
             raise PermissionDenied("Only the designated class teacher or principal can take attendance for this class.")
-        if date != today:
+        if date != today and not has_backdate_perm:
             raise PermissionDenied("Teachers can only submit attendance for today.")
 
     # Validate students match exactly the class roster
@@ -55,7 +63,7 @@ def upsert_attendance_session(school_class, date, records_data, actor, request=N
         before_state = {}
         if not created:
             # Editing an existing session
-            if date != today and not is_principal_or_su:
+            if date != today and not is_principal_or_su and not has_backdate_perm:
                 raise PermissionDenied("Only the principal can edit attendance for past dates.")
             before_state = {r.student_id: r.status for r in session.records.all()}
             session.taken_by = actor
