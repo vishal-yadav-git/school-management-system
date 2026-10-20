@@ -94,10 +94,21 @@ def csrf(request):
 @permission_classes([AllowAny])
 @throttle_classes([AuthThrottle])
 def login_view(request):
-    username = request.data.get("username")
+    username = request.data.get("username", "")
     password = request.data.get("password")
 
-    user = authenticate(request, username=username, password=password)
+    if isinstance(username, str):
+        username = username.strip()
+
+    lookup_user = User.objects.filter(username__iexact=username).first()
+    if not lookup_user and username:
+        lookup_user = User.objects.filter(email__iexact=username).first()
+    if not lookup_user and username:
+        lookup_user = User.objects.filter(mobile=username).first()
+
+    auth_username = lookup_user.username if lookup_user else username
+
+    user = authenticate(request, username=auth_username, password=password)
     if user is None:
         return Response({"detail": "Invalid username or password"}, status=400)
 

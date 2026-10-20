@@ -176,13 +176,16 @@ class StudentSerializer(serializers.ModelSerializer):
 
 class RegisterSerializer(serializers.Serializer):
     role = serializers.CharField(required=False, default="parent")
-    username = serializers.CharField(required=True)
+    username = serializers.CharField(required=False, allow_blank=True, default="")
     password = serializers.CharField(required=True, write_only=True)
     firstName = serializers.CharField(required=False, allow_blank=True, default="")
     lastName = serializers.CharField(required=False, allow_blank=True, default="")
+    name = serializers.CharField(required=False, allow_blank=True, default="")
     email = serializers.EmailField(required=False, allow_blank=True, default="")
     mobile = serializers.CharField(required=False, allow_blank=True, default="")
     schoolId = serializers.IntegerField(required=False, allow_null=True)
+    instituteName = serializers.CharField(required=False, allow_blank=True, default="")
+    designation = serializers.CharField(required=False, allow_blank=True, default="")
     admissionNumber = serializers.CharField(required=False, allow_blank=True, default="")
     employeeId = serializers.CharField(required=False, allow_blank=True, default="")
     gender = serializers.CharField(required=False, allow_blank=True, default="")
@@ -192,13 +195,48 @@ class RegisterSerializer(serializers.Serializer):
         role = role_raw.lower().strip() if role_raw else "parent"
         attrs["role"] = role
 
-        if role not in ("student", "parent", "teacher"):
+        institute_name = attrs.get("instituteName", "").strip()
+        attrs["instituteName"] = institute_name
+
+        if role == "admin":
+            if not institute_name:
+                raise serializers.ValidationError({"role": ["This role cannot be registered publicly"]})
+        elif role not in ("student", "parent", "teacher"):
             raise serializers.ValidationError({"role": ["This role cannot be registered publicly"]})
 
+        # Name handling (split full name into first and last if needed)
+        name = attrs.get("name", "").strip()
+        if name and not attrs.get("firstName"):
+            parts = name.split(None, 1)
+            attrs["firstName"] = parts[0]
+            if len(parts) > 1:
+                attrs["lastName"] = parts[1]
+
         username = attrs.get("username", "").strip()
-        attrs["username"] = username
         if not username:
-            raise serializers.ValidationError({"username": ["This field is required."]})
+            email_val = attrs.get("email", "").strip()
+            mobile_val = attrs.get("mobile", "").strip()
+            if email_val:
+                candidate = email_val.split("@")[0].lower()
+            elif mobile_val:
+                candidate = f"user_{mobile_val[-4:]}"
+            elif name:
+                import re
+                candidate = re.sub(r'[^a-zA-Z0-9_]', '_', name.lower())
+            else:
+                candidate = ""
+
+            if not candidate:
+                raise serializers.ValidationError({"username": ["This field is required."]})
+
+            # Ensure uniqueness
+            import random
+            unique_username = candidate
+            while User.objects.filter(username__iexact=unique_username).exists():
+                unique_username = f"{candidate}_{random.randint(1000, 9999)}"
+            username = unique_username
+
+        attrs["username"] = username
         if User.objects.filter(username__iexact=username).exists():
             raise serializers.ValidationError({"username": ["A user with that username already exists."]})
 
@@ -249,6 +287,7 @@ class RegisterSerializer(serializers.Serializer):
         return attrs
 
     def create(self, validated_data):
+        import re
         with transaction.atomic():
             user = User(
                 username=validated_data["username"],
@@ -257,7 +296,7 @@ class RegisterSerializer(serializers.Serializer):
                 first_name=validated_data.get("firstName", ""),
                 last_name=validated_data.get("lastName", ""),
                 role=validated_data["role"],
-                is_staff=False,
+                is_staff=(validated_data["role"] == "admin"),
                 is_superuser=False,
                 is_active=True,
             )
@@ -276,6 +315,24 @@ class RegisterSerializer(serializers.Serializer):
                     user=user,
                     school=validated_data["_school"],
                     employee_id=validated_data["employeeId"],
+                )
+            elif user.role == "admin" and validated_data.get("instituteName"):
+                clean_name = re.sub(r'[^A-Z0-9]', '', validated_data["instituteName"].upper())[:6] or "INST"
+                base_code = f"{clean_name}-09"
+                code = base_code
+                counter = 1
+                while School.objects.filter(code=code).exists():
+                    code = f"{base_code}-{counter}"
+                    counter += 1
+
+                School.objects.create(
+                    name=validated_data["instituteName"],
+                    code=code,
+                    address="Indore, Madhya Pradesh",
+                    city="Indore",
+                    phone=validated_data.get("mobile", ""),
+                    email=validated_data.get("email", ""),
+                    principal=user,
                 )
             return user
 

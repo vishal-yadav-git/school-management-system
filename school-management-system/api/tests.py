@@ -512,6 +512,60 @@ class ApiTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("username", res.data)
 
+    def test_user_register_with_name_email_mobile_and_login_by_email_or_mobile(self):
+        res = self.client.post(
+            "/api/v1/auth/register/",
+            {
+                "name": "Aman Sharma",
+                "email": "aman.sharma@example.com",
+                "mobile": "9876543210",
+                "password": "SecurePassword@123!",
+                "role": "parent",
+            },
+        )
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(res.data["user"]["email"], "aman.sharma@example.com")
+        self.assertEqual(res.data["user"]["mobile"], "9876543210")
+        self.assertEqual(res.data["user"]["first_name"], "Aman")
+        self.assertEqual(res.data["user"]["last_name"], "Sharma")
+        self.client.logout()
+
+        # Login with email
+        res_email = self.client.post(
+            "/api/v1/auth/login/",
+            {"username": "aman.sharma@example.com", "password": "SecurePassword@123!"},
+        )
+        self.assertEqual(res_email.status_code, status.HTTP_200_OK)
+        self.client.logout()
+
+        # Login with mobile
+        res_mobile = self.client.post(
+            "/api/v1/auth/login/",
+            {"username": "9876543210", "password": "SecurePassword@123!"},
+        )
+        self.assertEqual(res_mobile.status_code, status.HTTP_200_OK)
+
+    def test_institute_admin_register_success(self):
+        res = self.client.post(
+            "/api/v1/auth/register/",
+            {
+                "username": "dean_renaissance",
+                "email": "dean@renaissance.edu",
+                "mobile": "9826012345",
+                "instituteName": "Renaissance University Indore",
+                "designation": "Campus Director",
+                "password": "SecurePassword@123!",
+                "role": "admin",
+            },
+        )
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(res.data["user"]["role"], "admin")
+        self.assertEqual(res.data["redirectUrl"], "/admin")
+        self.assertIsNotNone(res.data["school"])
+        self.assertEqual(res.data["school"]["name"], "Renaissance University Indore")
+        from schools.models import School
+        self.assertTrue(School.objects.filter(name="Renaissance University Indore").exists())
+
     def test_student_me_success_and_isolation(self):
         # Non-student gets 403
         self.client.force_login(self.teacher_user_a)
