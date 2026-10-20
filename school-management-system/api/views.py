@@ -41,10 +41,16 @@ def user_school(user):
     return None
 
 
-def scoped(qs, user):
+def scoped(qs, user, request=None):
     if user.is_superuser:
         return qs
     school = getattr(user, "principal_school", None)
+    if not school and request:
+        try:
+            from organizations.services import get_active_school_for_user
+            school = get_active_school_for_user(request)
+        except ImportError:
+            pass
     return qs.filter(school=school) if school else qs.none()
 
 
@@ -171,11 +177,25 @@ def school_detail(request, pk):
 @permission_classes([IsPrincipalOrSuperuser])
 def dashboard_stats(request):
     u = request.user
+    from organizations.services import get_active_school_for_user
+    active_school = get_active_school_for_user(request) or user_school(u)
+
+    if not u.is_superuser and active_school:
+        so = getattr(active_school, "organization_membership", None)
+        if so and so.status == "pending":
+            return Response(
+                {
+                    "detail": "School email verification is pending. Please verify your email before accessing the dashboard.",
+                    "code": "EMAIL_VERIFICATION_PENDING",
+                },
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
     data = {
-        "totalTeachers": scoped(Teacher.objects.all(), u).count(),
-        "totalStudents": scoped(Student.objects.all(), u).count(),
-        "totalClasses": scoped(SchoolClass.objects.all(), u).count(),
-        "totalSubjects": scoped(Subject.objects.all(), u).count(),
+        "totalTeachers": scoped(Teacher.objects.all(), u, request).count(),
+        "totalStudents": scoped(Student.objects.all(), u, request).count(),
+        "totalClasses": scoped(SchoolClass.objects.all(), u, request).count(),
+        "totalSubjects": scoped(Subject.objects.all(), u, request).count(),
     }
     if u.is_superuser:
         data["totalSchools"] = School.objects.count()

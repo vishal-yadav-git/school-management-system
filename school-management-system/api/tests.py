@@ -526,8 +526,8 @@ class ApiTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
         self.assertEqual(res.data["user"]["email"], "aman.sharma@example.com")
         self.assertEqual(res.data["user"]["mobile"], "9876543210")
-        self.assertEqual(res.data["user"]["first_name"], "Aman")
-        self.assertEqual(res.data["user"]["last_name"], "Sharma")
+        self.assertEqual(res.data["user"]["firstName"], "Aman")
+        self.assertEqual(res.data["user"]["lastName"], "Sharma")
         self.client.logout()
 
         # Login with email

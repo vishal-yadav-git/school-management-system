@@ -7,6 +7,7 @@ from audit import views as views_audit
 from guardians import views as views_guardians
 from attendance import views as views_attendance
 from notices import views as views_notices
+from organizations import views as views_org
 
 urlpatterns = [
     # Auth
@@ -71,6 +72,16 @@ urlpatterns = [
     # Wave 1: Notices
     path("notices/", views_notices.notices_list, name="api_notices_list"),
     path("notices/<int:pk>/", views_notices.notice_detail, name="api_notice_detail"),
+
+    # Wave 2: Organizations & Multi-Campus
+    path("auth/register-org/", views_org.register_org, name="api_register_org"),
+    path("auth/verify-email/", views_org.verify_email, name="api_verify_email"),
+    path("organizations/campuses/", views_org.campuses_list, name="api_campuses_list"),
+    path("organizations/switch-campus/", views_org.switch_campus, name="api_switch_campus"),
+
+    # Wave 2: Setup Wizard & Principal Classes
+    path("setup/status/", views_org.setup_status, name="api_setup_status"),
+    path("classes/", views_org.principal_classes, name="api_classes_principal"),
 ]
 
 

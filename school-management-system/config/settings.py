@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.1/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -49,6 +50,7 @@ INSTALLED_APPS = [
     'guardians',
     'attendance',
     'notices',
+    'organizations',
 ]
 # added manually
 AUTH_USER_MODEL = 'accounts.User'
@@ -137,9 +139,11 @@ STATIC_URL = 'static/'
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 
+DEFAULT_FROM_EMAIL = "noreply@indoreedu.in"
+
 MAILERS = {
     'default': {
-        'BACKEND': 'django.core.mail.backends.console.EmailBackend',
+        'BACKEND': os.getenv("EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend"),
     },
 }
 
@@ -172,6 +176,7 @@ REST_FRAMEWORK = {
         'user': '100/minute',
         'auth': '10/min',
         'guardian_claim': '5/hour',
+        'register_org': '5/hour',
     },
 }
 
