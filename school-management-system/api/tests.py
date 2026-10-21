@@ -660,6 +660,62 @@ class ApiTests(TestCase):
         self.assertEqual(res_del.status_code, status.HTTP_200_OK)
         self.assertFalse(SchoolClass.objects.filter(id=class_id).exists())
 
+    def test_admin_classes_validation_rejects_commas_and_class_prefix(self):
+        self.client.force_login(self.principal_a)
+
+        # 1. Reject name starting with "Class"
+        res1 = self.client.post("/api/v1/admin/classes/", {
+            "name": "Class 10",
+            "section": "A",
+        })
+        self.assertEqual(res1.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("name", res1.data)
+        self.assertIn("Do not prefix class name with 'Class'", str(res1.data["name"]))
+
+        # 2. Reject lowercase "class 10"
+        res2 = self.client.post("/api/v1/admin/classes/", {
+            "name": "class 9",
+            "section": "A",
+        })
+        self.assertEqual(res2.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("name", res2.data)
+
+        # 3. Reject comma in section
+        res3 = self.client.post("/api/v1/admin/classes/", {
+            "name": "10",
+            "section": "A, B, C, D",
+        })
+        self.assertEqual(res3.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("section", res3.data)
+        self.assertIn("Section cannot contain commas", str(res3.data["section"]))
+
+        # 4. Reject combined "Class 10-A, B, C, D" and "A, B, C, D"
+        res4 = self.client.post("/api/v1/admin/classes/", {
+            "name": "Class 10-A, B, C, D",
+            "section": "A, B, C, D",
+        })
+        self.assertEqual(res4.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("name", res4.data)
+        self.assertIn("section", res4.data)
+
+        # 5. Reject on PATCH
+        res_patch_name = self.client.patch(f"/api/v1/admin/classes/{self.class_a.id}/", {
+            "name": "Class 10",
+        })
+        self.assertEqual(res_patch_name.status_code, status.HTTP_400_BAD_REQUEST)
+
+        res_patch_sec = self.client.patch(f"/api/v1/admin/classes/{self.class_a.id}/", {
+            "section": "A, B",
+        })
+        self.assertEqual(res_patch_sec.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # 6. Valid creation succeeds
+        res_valid = self.client.post("/api/v1/admin/classes/", {
+            "name": "12",
+            "section": "B",
+        })
+        self.assertEqual(res_valid.status_code, status.HTTP_201_CREATED)
+
     def test_admin_teachers_crud_and_credentials_returned(self):
         self.client.force_login(self.principal_a)
 

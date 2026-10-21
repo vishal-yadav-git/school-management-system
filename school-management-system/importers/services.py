@@ -37,7 +37,43 @@ def clean_cell_string(val):
     """
     if val is None:
         return ""
+    if isinstance(val, float) and val.is_integer():
+        val = int(val)
     return sanitize_cell_value(val).strip()
+
+
+def normalize_class_name(val):
+    """
+    Normalizes class/standard for comparison:
+    - Treats numeric cell 10 and '10' the same.
+    - Strips whitespace.
+    - Strips formula injection apostrophe if present.
+    - Case-insensitive.
+    - Removes leading 'class', 'std', 'std.', 'standard' word.
+    """
+    if val is None:
+        return ""
+    if isinstance(val, float) and val.is_integer():
+        val = int(val)
+    s = str(val).strip()
+    if s.startswith("'"):
+        s = s[1:].strip()
+    norm = re.sub(r'^(?:class|std\.?|standard)\s*[-:]?\s*', '', s, flags=re.IGNORECASE).strip()
+    return norm.lower() if norm else s.lower()
+
+
+def normalize_section_name(val):
+    """
+    Normalizes section:
+    - Strips whitespace.
+    - Uppercase.
+    """
+    if val is None:
+        return ""
+    s = str(val).strip()
+    if s.startswith("'"):
+        s = s[1:].strip()
+    return s.upper()
 
 
 def generate_teacher_template():
@@ -296,6 +332,26 @@ def validate_student_import(file_obj, school):
     errors = []
     seen_in_file_adm_nos = set()
 
+    # Pre-fetch and index all classes in this school for fast, normalized lookup
+    school_classes = list(SchoolClass.objects.filter(school=school))
+    class_map = {}
+    for c in school_classes:
+        norm_c_name = normalize_class_name(c.name)
+        norm_c_sec = normalize_section_name(c.section)
+        # Store exact lowercase name key
+        class_map[(str(c.name).strip().lower(), norm_c_sec)] = c
+        # Store normalized name key
+        if (norm_c_name, norm_c_sec) not in class_map:
+            class_map[(norm_c_name, norm_c_sec)] = c
+
+    # Available classes formatted for error message: "10-A, 10-B, ..."
+    sorted_classes = sorted(school_classes, key=lambda c: (str(c.name), str(c.section)))
+    available_classes_str = (
+        ", ".join(f"{c.name}-{c.section}" for c in sorted_classes)
+        if sorted_classes
+        else "None"
+    )
+
     for row_idx, row in enumerate(data_rows, start=2):
         if not any(row):
             continue
@@ -303,8 +359,10 @@ def validate_student_import(file_obj, school):
         adm_no = clean_cell_string(row[field_map["admission_number"]])
         first_name = clean_cell_string(row[field_map["first_name"]])
         last_name = clean_cell_string(row[field_map["last_name"]])
-        class_name = clean_cell_string(row[field_map["class"]])
-        section_name = clean_cell_string(row[field_map["section"]])
+        raw_class = row[field_map["class"]]
+        raw_section = row[field_map["section"]]
+        class_name = clean_cell_string(raw_class)
+        section_name = normalize_section_name(raw_section)
         guardian_name = clean_cell_string(row[field_map["guardian_name"]])
         raw_guardian_mobile = str(row[field_map["guardian_mobile"]] or "").strip()
         guardian_rel = (
@@ -334,16 +392,19 @@ def validate_student_import(file_obj, school):
         if len(norm_guardian_mobile) != 10:
             row_errors.append(f"Invalid guardian mobile '{raw_guardian_mobile}'. Must be a 10-digit number.")
 
-        # Verify class exists in school
+        # Verify class exists in school using normalized lookup
         class_obj = None
         if class_name and section_name:
-            class_obj = SchoolClass.objects.filter(
-                school=school,
-                name__iexact=class_name,
-                section__iexact=section_name,
-            ).first()
+            norm_cls = normalize_class_name(raw_class)
+            # Try exact first, then normalized class name
+            class_obj = class_map.get((class_name.lower(), section_name))
             if not class_obj:
-                row_errors.append(f"Class '{class_name} {section_name}' does not exist in your school. Create it first.")
+                class_obj = class_map.get((norm_cls, section_name))
+
+            if not class_obj:
+                row_errors.append(
+                    f"Class '{class_name} {section_name}' does not exist in your school. Available: {available_classes_str}."
+                )
 
         if adm_no:
             clean_adm = adm_no.strip().upper()
@@ -363,9 +424,9 @@ def validate_student_import(file_obj, school):
                 "admission_number": adm_no,
                 "first_name": first_name,
                 "last_name": last_name,
-                "class_name": class_name,
-                "section_name": section_name,
-                "class_id": class_obj.id if class_obj else None,
+                "class_name": class_obj.name,
+                "section_name": class_obj.section,
+                "class_id": class_obj.id,
                 "guardian_name": guardian_name,
                 "guardian_mobile": norm_guardian_mobile,
                 "guardian_relation": guardian_rel,

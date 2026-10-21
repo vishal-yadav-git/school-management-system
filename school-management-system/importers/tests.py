@@ -276,3 +276,78 @@ class ImportersTests(APITestCase):
         # Replaying same token should fail
         res_replay = self.client.post("/api/v1/import/confirm/", {"importToken": token})
         self.assertEqual(res_replay.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_student_import_class_normalization_and_available_classes(self):
+        self.client.force_authenticate(user=self.principal)
+
+        # Create 10-B as well to test available classes list formatting
+        class_10b = SchoolClass.objects.create(school=self.school, name="10", section="B")
+
+        headers = [
+            "Admission Number*", "First Name*", "Last Name*", "Class*", "Section*",
+            "Guardian Name*", "Guardian Mobile*", "Guardian Relation*",
+        ]
+        rows = [
+            # 1. "Class 10" vs "10" and lowercase section "a"
+            ["ADM301", "Kavya", "Sharma", "Class 10", "a", "Manoj Sharma", "9876543201", "father"],
+            # 2. Text cell "10" with section "A"
+            ["ADM302", "Rohit", "Verma", "10", "A", "Sunil Verma", "9876543202", "father"],
+            # 3. Numeric cell 10 vs text cell and lowercase section "b"
+            ["ADM303", "Ananya", "Joshi", 10, "b", "Alok Joshi", "9876543203", "mother"],
+            # 4. "std 10" with whitespace in section
+            ["ADM304", "Vikas", "Dubey", "std 10", " a ", "Rajesh Dubey", "9876543204", "father"],
+            # 5. "Standard 10" with uppercase section
+            ["ADM305", "Meera", "Sen", "Standard 10", "B", "Ashok Sen", "9876543205", "mother"],
+        ]
+        xlsx_bytes = create_excel_file(headers, rows)
+        uploaded = SimpleUploadedFile("students.xlsx", xlsx_bytes, content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
+        res_preview = self.client.post(
+            "/api/v1/import/preview/",
+            {"type": "student", "file": uploaded},
+            format="multipart",
+        )
+        self.assertEqual(res_preview.status_code, status.HTTP_200_OK)
+        self.assertEqual(res_preview.data["validRows"], 5)
+        self.assertEqual(res_preview.data["errorRows"], 0)
+
+        # Confirm and check all 5 are linked to the right SchoolClass objects
+        token = res_preview.data["importToken"]
+        res_confirm = self.client.post("/api/v1/import/confirm/", {"importToken": token})
+        self.assertEqual(res_confirm.status_code, status.HTTP_200_OK)
+
+        # Verify students and class links
+        s1 = Student.objects.get(school=self.school, admission_number="ADM301")
+        self.assertEqual(s1.class_section, self.class_10a)
+
+        s2 = Student.objects.get(school=self.school, admission_number="ADM302")
+        self.assertEqual(s2.class_section, self.class_10a)
+
+        s3 = Student.objects.get(school=self.school, admission_number="ADM303")
+        self.assertEqual(s3.class_section, class_10b)
+
+        s4 = Student.objects.get(school=self.school, admission_number="ADM304")
+        self.assertEqual(s4.class_section, self.class_10a)
+
+        s5 = Student.objects.get(school=self.school, admission_number="ADM305")
+        self.assertEqual(s5.class_section, class_10b)
+
+        # Now test invalid class and verify available classes are listed in error message
+        bad_rows = [
+            ["ADM399", "Unknown", "Student", "12", "C", "Parent Name", "9876543299", "father"],
+        ]
+        bad_xlsx = create_excel_file(headers, bad_rows)
+        bad_upload = SimpleUploadedFile("bad_students.xlsx", bad_xlsx, content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
+        res_bad = self.client.post(
+            "/api/v1/import/preview/",
+            {"type": "student", "file": bad_upload},
+            format="multipart",
+        )
+        self.assertEqual(res_bad.status_code, status.HTTP_200_OK)
+        self.assertEqual(res_bad.data["validRows"], 0)
+        self.assertEqual(res_bad.data["errorRows"], 1)
+        err_msg = str(res_bad.data["errors"])
+        self.assertIn("does not exist in your school", err_msg)
+        self.assertIn("Available: 10-A, 10-B", err_msg)
+

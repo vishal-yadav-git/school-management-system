@@ -1,4 +1,5 @@
 import os
+import re
 import uuid
 from django.conf import settings
 from django.contrib.auth.password_validation import validate_password
@@ -111,8 +112,13 @@ def admin_classes(request):
         errors = {}
         if not name:
             errors["name"] = ["Class name/standard is required."]
+        elif re.match(r"^class(?:\b|\d)", name.strip(), flags=re.IGNORECASE):
+            errors["name"] = ["Do not prefix class name with 'Class'. Enter only standard/grade (e.g. '10' or 'X')."]
+
         if not section:
             errors["section"] = ["Class section is required."]
+        elif "," in section:
+            errors["section"] = ["Section cannot contain commas. Create separate classes for each section."]
 
         school = get_target_school(request)
 
@@ -161,8 +167,13 @@ def admin_class_detail(request, pk):
         errors = {}
         if not name:
             errors["name"] = ["Class name is required."]
+        elif re.match(r"^class(?:\b|\d)", name.strip(), flags=re.IGNORECASE):
+            errors["name"] = ["Do not prefix class name with 'Class'. Enter only standard/grade (e.g. '10' or 'X')."]
+
         if not section:
             errors["section"] = ["Section is required."]
+        elif "," in section:
+            errors["section"] = ["Section cannot contain commas. Create separate classes for each section."]
 
         if SchoolClass.objects.filter(school=school_class.school, name__iexact=name, section__iexact=section).exclude(id=school_class.id).exists():
             errors["non_field_errors"] = [f"Class {name}-{section} already exists."]

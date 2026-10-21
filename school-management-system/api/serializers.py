@@ -1,3 +1,4 @@
+import re
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import transaction
@@ -134,6 +135,16 @@ class ClassSerializer(serializers.ModelSerializer):
 
     def get_studentCount(self, obj):
         return obj.students.count()
+
+    def validate_name(self, value):
+        if value and re.match(r"^class(?:\b|\d)", value.strip(), flags=re.IGNORECASE):
+            raise serializers.ValidationError("Do not prefix class name with 'Class'. Enter only standard/grade (e.g. '10' or 'X').")
+        return value
+
+    def validate_section(self, value):
+        if value and "," in value:
+            raise serializers.ValidationError("Section cannot contain commas. Create separate classes for each section.")
+        return value
 
 
 class StudentSerializer(serializers.ModelSerializer):
