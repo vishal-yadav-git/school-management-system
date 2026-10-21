@@ -89,7 +89,7 @@ class TeacherSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source="user.username", read_only=True)
     email = serializers.CharField(source="user.email", read_only=True)
     mobile = serializers.CharField(source="user.mobile", read_only=True)
-    employeeId = serializers.CharField(source="employee_id", read_only=True)
+    employeeId = serializers.SerializerMethodField()
     schoolName = serializers.CharField(source="school.name", read_only=True)
 
     class Meta:
@@ -109,6 +109,14 @@ class TeacherSerializer(serializers.ModelSerializer):
             "school",
             "schoolName",
         ]
+
+    def get_employeeId(self, obj):
+        code = obj.school.code if obj.school else ""
+        val = obj.employee_id or ""
+        prefix = f"{code}-"
+        if code and val.startswith(prefix):
+            return val[len(prefix):]
+        return val
 
 
 class ClassSerializer(serializers.ModelSerializer):
@@ -154,7 +162,7 @@ class StudentSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source="user.username", read_only=True)
     email = serializers.CharField(source="user.email", read_only=True)
     mobile = serializers.CharField(source="user.mobile", read_only=True)
-    admissionNumber = serializers.CharField(source="admission_number", read_only=True)
+    admissionNumber = serializers.SerializerMethodField()
     classSection = serializers.PrimaryKeyRelatedField(source="class_section", read_only=True)
     className = serializers.SerializerMethodField()
     schoolName = serializers.CharField(source="school.name", read_only=True)
@@ -179,6 +187,14 @@ class StudentSerializer(serializers.ModelSerializer):
             "classSection",
             "className",
         ]
+
+    def get_admissionNumber(self, obj):
+        code = obj.school.code if obj.school else ""
+        val = obj.admission_number or ""
+        prefix = f"{code}-"
+        if code and val.startswith(prefix):
+            return val[len(prefix):]
+        return val
 
     def get_className(self, obj):
         c = obj.class_section
@@ -224,6 +240,9 @@ class RegisterSerializer(serializers.Serializer):
                 attrs["lastName"] = parts[1]
 
         username = attrs.get("username", "").strip()
+        if username and re.match(r"^\d{10}$", username):
+            raise serializers.ValidationError({"username": ["10-digit numeric usernames are reserved for mobile logins."]})
+
         if not username:
             email_val = attrs.get("email", "").strip()
             mobile_val = attrs.get("mobile", "").strip()
@@ -232,7 +251,6 @@ class RegisterSerializer(serializers.Serializer):
             elif mobile_val:
                 candidate = f"user_{mobile_val[-4:]}"
             elif name:
-                import re
                 candidate = re.sub(r'[^a-zA-Z0-9_]', '_', name.lower())
             else:
                 candidate = ""
@@ -261,13 +279,15 @@ class RegisterSerializer(serializers.Serializer):
 
         email = attrs.get("email", "").strip()
         attrs["email"] = email
-        if email and User.objects.filter(email__iexact=email).exists():
-            raise serializers.ValidationError({"email": ["A user with that email already exists."]})
-
         mobile = attrs.get("mobile", "").strip()
         attrs["mobile"] = mobile
-        if mobile and User.objects.filter(mobile=mobile).exists():
-            raise serializers.ValidationError({"mobile": ["A user with that mobile number already exists."]})
+
+        if (email and User.objects.filter(email__iexact=email).exists()) or (
+            mobile and User.objects.filter(mobile=mobile).exists()
+        ):
+            raise serializers.ValidationError(
+                {"detail": "An account with this email or mobile already exists. Please sign in or use password recovery."}
+            )
 
         if role in ("student", "teacher"):
             school_id = attrs.get("schoolId")
@@ -284,21 +304,32 @@ class RegisterSerializer(serializers.Serializer):
             attrs["admissionNumber"] = adm
             if not adm:
                 raise serializers.ValidationError({"admissionNumber": ["This field is required."]})
-            if Student.objects.filter(admission_number__iexact=adm).exists():
-                raise serializers.ValidationError({"admissionNumber": ["A student with that admission number already exists."]})
+            school = attrs.get("_school")
+            internal_adm = f"{school.code}-{adm}" if school else adm
+            from django.db.models import Q
+            if Student.objects.filter(school=school).filter(
+                Q(admission_number__iexact=internal_adm) | Q(admission_number__iexact=adm)
+            ).exists():
+                raise serializers.ValidationError({"admissionNumber": ["A student with that admission number already exists in this school."]})
 
         if role == "teacher":
             emp = attrs.get("employeeId", "").strip()
             attrs["employeeId"] = emp
             if not emp:
                 raise serializers.ValidationError({"employeeId": ["This field is required."]})
-            if Teacher.objects.filter(employee_id__iexact=emp).exists():
-                raise serializers.ValidationError({"employeeId": ["A teacher with that employee ID already exists."]})
+            school = attrs.get("_school")
+            internal_emp = f"{school.code}-{emp}" if school else emp
+            from django.db.models import Q
+            if Teacher.objects.filter(school=school).filter(
+                Q(employee_id__iexact=internal_emp) | Q(employee_id__iexact=emp)
+            ).exists():
+                raise serializers.ValidationError({"employeeId": ["A teacher with that employee ID already exists in this school."]})
 
         return attrs
 
     def create(self, validated_data):
         import re
+        from credentials.models import UserSecurity
         with transaction.atomic():
             user = User(
                 username=validated_data["username"],
@@ -313,19 +344,26 @@ class RegisterSerializer(serializers.Serializer):
             )
             user.set_password(validated_data["password"])
             user.save()
+            UserSecurity.objects.get_or_create(user=user, defaults={"created_via": "register"})
 
             if user.role == "student":
+                adm = validated_data["admissionNumber"]
+                school = validated_data["_school"]
+                internal_adm = f"{school.code}-{adm}"
                 Student.objects.create(
                     user=user,
-                    school=validated_data["_school"],
-                    admission_number=validated_data["admissionNumber"],
+                    school=school,
+                    admission_number=internal_adm,
                     gender=validated_data.get("gender", ""),
                 )
             elif user.role == "teacher":
+                emp = validated_data["employeeId"]
+                school = validated_data["_school"]
+                internal_emp = f"{school.code}-{emp}"
                 Teacher.objects.create(
                     user=user,
-                    school=validated_data["_school"],
-                    employee_id=validated_data["employeeId"],
+                    school=school,
+                    employee_id=internal_emp,
                 )
             elif user.role == "admin" and validated_data.get("instituteName"):
                 clean_name = re.sub(r'[^A-Z0-9]', '', validated_data["instituteName"].upper())[:6] or "INST"

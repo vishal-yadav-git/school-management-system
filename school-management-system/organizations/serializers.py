@@ -15,9 +15,11 @@ class RegisterOrgSerializer(serializers.Serializer):
     password = serializers.CharField(required=True, write_only=True)
 
     def validate(self, attrs):
+        import re
         org_name = attrs.get("organizationName", "").strip()
         username = attrs.get("username", "").strip()
         email = attrs.get("email", "").strip()
+        mobile = attrs.get("mobile", "").strip()
         password = attrs.get("password", "")
 
         if not org_name:
@@ -26,11 +28,19 @@ class RegisterOrgSerializer(serializers.Serializer):
         if not username:
             raise serializers.ValidationError({"username": ["Username is required."]})
 
+        if username and re.match(r"^\d{10}$", username):
+            raise serializers.ValidationError({"username": ["10-digit numeric usernames are reserved for mobile logins."]})
+
         if not email:
             raise serializers.ValidationError({"email": ["Email address is required."]})
 
         # Generic rejection to prevent user enumeration
-        if User.objects.filter(username__iexact=username).exists() or User.objects.filter(email__iexact=email).exists():
+        user_exists = (
+            User.objects.filter(username__iexact=username).exists()
+            or User.objects.filter(email__iexact=email).exists()
+            or (mobile and User.objects.filter(mobile=mobile).exists())
+        )
+        if user_exists:
             raise serializers.ValidationError(
                 {"detail": "An account with these details could not be registered. Please check your information or sign in."}
             )
@@ -43,6 +53,7 @@ class RegisterOrgSerializer(serializers.Serializer):
         attrs["organizationName"] = org_name
         attrs["username"] = username
         attrs["email"] = email
+        attrs["mobile"] = mobile
         return attrs
 
 

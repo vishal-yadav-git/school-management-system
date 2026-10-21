@@ -250,6 +250,10 @@ def admin_teachers(request):
         qualification = clean_value(data.get("qualification"))
         joining_date = convert_date(data.get("joiningDate") or data.get("joining_date"))
 
+        school = get_target_school(request)
+        from importers.services import make_internal_id
+        internal_eid = make_internal_id(school.code, employee_id) if (employee_id and school) else employee_id
+
         errors = {}
         if not first_name:
             errors["firstName"] = ["First name is required."]
@@ -260,7 +264,7 @@ def admin_teachers(request):
 
         if not employee_id:
             errors["employeeId"] = ["Employee ID is required."]
-        elif Teacher.objects.filter(employee_id__iexact=employee_id).exists():
+        elif Teacher.objects.filter(employee_id__iexact=internal_eid).exists():
             errors["employeeId"] = ["A teacher with this employee ID already exists."]
 
         if not password:
@@ -273,8 +277,6 @@ def admin_teachers(request):
 
         if email and User.objects.filter(email__iexact=email).exists():
             errors["email"] = ["Email already in use."]
-
-        school = get_target_school(request)
 
         if errors:
             return Response(errors, status=status.HTTP_400_BAD_REQUEST)
@@ -292,7 +294,7 @@ def admin_teachers(request):
             teacher = Teacher.objects.create(
                 user=user,
                 school=school,
-                employee_id=employee_id,
+                employee_id=internal_eid,
                 designation=designation,
                 qualification=qualification,
                 joining_date=joining_date,
@@ -416,6 +418,9 @@ def admin_students(request):
         address = clean_value(data.get("address"))
 
         school = get_target_school(request)
+        from importers.services import make_internal_id
+        internal_adm = make_internal_id(school.code, admission_number) if (admission_number and school) else admission_number
+
         errors = {}
 
         if not first_name:
@@ -427,7 +432,7 @@ def admin_students(request):
 
         if not admission_number:
             errors["admissionNumber"] = ["Admission number is required."]
-        elif Student.objects.filter(admission_number__iexact=admission_number).exists():
+        elif Student.objects.filter(admission_number__iexact=internal_adm).exists():
             errors["admissionNumber"] = ["A student with this admission number already exists."]
 
         if not password:
@@ -462,7 +467,7 @@ def admin_students(request):
                 user=user,
                 school=school,
                 class_section=class_section,
-                admission_number=admission_number,
+                admission_number=internal_adm,
                 gender=gender,
                 date_of_birth=date_of_birth,
                 address=address,

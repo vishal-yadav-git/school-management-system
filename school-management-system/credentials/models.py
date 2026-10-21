@@ -9,6 +9,15 @@ class UserSecurity(models.Model):
         related_name="security",
     )
     must_change_password = models.BooleanField(default=False)
+    created_via = models.CharField(
+        max_length=20,
+        choices=[
+            ("manual", "Manual"),
+            ("import", "Import"),
+            ("register", "Register"),
+        ],
+        default="manual",
+    )
     password_changed_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

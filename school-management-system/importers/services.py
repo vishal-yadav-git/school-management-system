@@ -76,6 +76,31 @@ def normalize_section_name(val):
     return s.upper()
 
 
+def make_internal_id(school_code, raw_id):
+    """
+    Stores admission_number and employee_id internally as '<schoolcode>-<value>'.
+    Idempotent if already prefixed.
+    """
+    clean_code = str(school_code or "").strip().upper()
+    clean_raw = str(raw_id or "").strip()
+    prefix = f"{clean_code}-"
+    if clean_raw.upper().startswith(prefix):
+        return clean_raw
+    return f"{prefix}{clean_raw}"
+
+
+def format_display_id(school_code, internal_id):
+    """
+    Displays admission_number and employee_id without '<schoolcode>-' prefix.
+    """
+    clean_code = str(school_code or "").strip().upper()
+    clean_id = str(internal_id or "").strip()
+    prefix = f"{clean_code}-"
+    if clean_id.upper().startswith(prefix):
+        return clean_id[len(prefix):]
+    return clean_id
+
+
 def generate_teacher_template():
     wb = openpyxl.Workbook()
     ws = wb.active
@@ -262,8 +287,8 @@ def validate_teacher_import(file_obj, school):
                 row_errors.append(f"Duplicate Employee ID '{emp_id}' within this sheet.")
             seen_in_file_ids.add(clean_eid)
 
-            # Check if employee_id already belongs to another school
-            other_school_teacher = Teacher.objects.filter(employee_id=emp_id).exclude(school=school).first()
+            internal_eid = make_internal_id(school.code, emp_id)
+            other_school_teacher = Teacher.objects.filter(employee_id=internal_eid).exclude(school=school).first()
             if other_school_teacher:
                 row_errors.append(f"Employee ID '{emp_id}' is already registered at another school.")
 
@@ -391,6 +416,15 @@ def validate_student_import(file_obj, school):
         norm_guardian_mobile = normalize_mobile(raw_guardian_mobile)
         if len(norm_guardian_mobile) != 10:
             row_errors.append(f"Invalid guardian mobile '{raw_guardian_mobile}'. Must be a 10-digit number.")
+        else:
+            existing_parent_user = User.objects.filter(username=norm_guardian_mobile).first()
+            if existing_parent_user:
+                sec = getattr(existing_parent_user, "security", None)
+                is_import_user = bool(sec and sec.created_via == "import")
+                is_approved_guardian = Guardian.objects.filter(user=existing_parent_user, link_status="approved").exists()
+
+                if not (is_import_user or is_approved_guardian):
+                    row_errors.append(f"Mobile '{norm_guardian_mobile}' is already registered by another account.")
 
         # Verify class exists in school using normalized lookup
         class_obj = None
@@ -412,7 +446,8 @@ def validate_student_import(file_obj, school):
                 row_errors.append(f"Duplicate Admission Number '{adm_no}' within this sheet.")
             seen_in_file_adm_nos.add(clean_adm)
 
-            other_school_student = Student.objects.filter(admission_number=adm_no).exclude(school=school).first()
+            internal_adm = make_internal_id(school.code, adm_no)
+            other_school_student = Student.objects.filter(admission_number=internal_adm).exclude(school=school).first()
             if other_school_student:
                 row_errors.append(f"Admission number '{adm_no}' is already registered at another school.")
 
@@ -453,9 +488,11 @@ def commit_teacher_import(valid_rows, actor, school, request=None):
             designation = item["designation"]
             department = item["department"]
 
+            internal_eid = make_internal_id(school.code, emp_id)
+
             existing_teacher = Teacher.objects.select_related("user").filter(
                 school=school,
-                employee_id=emp_id,
+                employee_id=internal_eid,
             ).first()
 
             if existing_teacher:
@@ -490,7 +527,7 @@ def commit_teacher_import(valid_rows, actor, school, request=None):
                 teacher = Teacher.objects.create(
                     user=user,
                     school=school,
-                    employee_id=emp_id,
+                    employee_id=internal_eid,
                     designation=designation,
                     qualification=department,
                 )
@@ -498,12 +535,13 @@ def commit_teacher_import(valid_rows, actor, school, request=None):
                 UserSecurity.objects.create(
                     user=user,
                     must_change_password=True,
+                    created_via="import",
                 )
 
                 credentials_rows.append({
                     "role": "Teacher",
                     "name": f"{first_name} {last_name}",
-                    "identifier": emp_id,
+                    "identifier": format_display_id(school.code, internal_eid),
                     "username": username,
                     "password": temp_password,
                     "notes": "Must change password on first login",
@@ -527,6 +565,7 @@ def commit_student_import(valid_rows, actor, school, request=None):
     Returns: list of credentials rows for students and newly created parents.
     """
     credentials_rows = []
+    seen_parent_mobiles_in_credentials = set()
 
     with transaction.atomic():
         for item in valid_rows:
@@ -539,10 +578,11 @@ def commit_student_import(valid_rows, actor, school, request=None):
             guardian_rel = item["guardian_relation"]
 
             school_class = SchoolClass.objects.get(pk=class_id, school=school)
+            internal_adm = make_internal_id(school.code, adm_no)
 
             existing_student = Student.objects.select_related("user").filter(
                 school=school,
-                admission_number=adm_no,
+                admission_number=internal_adm,
             ).first()
 
             if existing_student:
@@ -574,18 +614,19 @@ def commit_student_import(valid_rows, actor, school, request=None):
                     user=user,
                     school=school,
                     class_section=school_class,
-                    admission_number=adm_no,
+                    admission_number=internal_adm,
                 )
 
                 UserSecurity.objects.create(
                     user=user,
                     must_change_password=True,
+                    created_via="import",
                 )
 
                 credentials_rows.append({
                     "role": "Student",
                     "name": f"{first_name} {last_name}",
-                    "identifier": adm_no,
+                    "identifier": format_display_id(school.code, internal_adm),
                     "username": username,
                     "password": temp_password,
                     "notes": "Must change password on first login",
@@ -624,15 +665,30 @@ def commit_student_import(valid_rows, actor, school, request=None):
                 UserSecurity.objects.create(
                     user=parent_user,
                     must_change_password=True,
+                    created_via="import",
                 )
-                credentials_rows.append({
-                    "role": "Parent",
-                    "name": guardian_name,
-                    "identifier": guardian_mobile,
-                    "username": guardian_mobile,
-                    "password": parent_temp_password,
-                    "notes": "Parent login via 10-digit mobile",
-                })
+                if guardian_mobile not in seen_parent_mobiles_in_credentials:
+                    seen_parent_mobiles_in_credentials.add(guardian_mobile)
+                    credentials_rows.append({
+                        "role": "Parent",
+                        "name": guardian_name,
+                        "identifier": guardian_mobile,
+                        "username": guardian_mobile,
+                        "password": parent_temp_password,
+                        "notes": "Parent login via 10-digit mobile",
+                    })
+            else:
+                # Existing parent user: NEVER reset or regenerate password (Requirement 4)
+                if guardian_mobile not in seen_parent_mobiles_in_credentials:
+                    seen_parent_mobiles_in_credentials.add(guardian_mobile)
+                    credentials_rows.append({
+                        "role": "Parent",
+                        "name": parent_user.get_full_name() or guardian_name,
+                        "identifier": guardian_mobile,
+                        "username": guardian_mobile,
+                        "password": "Existing account",
+                        "notes": "Existing account",
+                    })
 
             # Link Guardian to Parent User
             if guardian.user != parent_user:

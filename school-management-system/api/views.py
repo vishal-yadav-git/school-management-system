@@ -63,13 +63,21 @@ def session_payload(user):
     }
     teacher = getattr(user, "teacher_profile", None)
     if teacher:
-        data["teacher"] = {"employeeId": teacher.employee_id, "designation": teacher.designation}
+        val = teacher.employee_id or ""
+        code = teacher.school.code if teacher.school else ""
+        prefix = f"{code}-"
+        display_eid = val[len(prefix):] if (code and val.startswith(prefix)) else val
+        data["teacher"] = {"employeeId": display_eid, "designation": teacher.designation}
     student = getattr(user, "student_profile", None)
     if student:
         c = student.class_section
         class_name = f"{c.name}-{c.section}" if c else None
+        val = student.admission_number or ""
+        code = student.school.code if student.school else ""
+        prefix = f"{code}-"
+        display_adm = val[len(prefix):] if (code and val.startswith(prefix)) else val
         data["student"] = {
-            "admissionNumber": student.admission_number,
+            "admissionNumber": display_adm,
             "className": class_name,
         }
     return data

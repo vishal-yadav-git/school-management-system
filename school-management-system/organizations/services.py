@@ -151,6 +151,9 @@ def create_organization_with_campus(data):
         user.set_password(password)
         user.save()
 
+        from credentials.models import UserSecurity
+        UserSecurity.objects.get_or_create(user=user, defaults={"created_via": "register"})
+
         org_code = generate_unique_code(org_name, Organization, prefix="ORG")
         organization = Organization.objects.create(
             name=org_name,

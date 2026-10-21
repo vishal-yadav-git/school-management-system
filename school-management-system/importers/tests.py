@@ -48,9 +48,27 @@ class ImportersTests(APITestCase):
             role="owner",
         )
 
-        # Another school for tenant isolation checks
-        self.school_other = School.objects.create(name="Other School", code="OTHR")
+        # Another school for tenant isolation and multi-school tests
+        self.principal_other = User.objects.create_user(
+            username="other_principal",
+            email="principal@other.edu",
+            password="StrongPassword@123!",
+            role="admin",
+        )
+        self.org_other = Organization.objects.create(name="Other Group", code="OTHORG", owner=self.principal_other)
+        self.school_other = School.objects.create(name="Other School", code="OTHR", principal=self.principal_other)
+        self.school_org_other = SchoolOrganization.objects.create(
+            organization=self.org_other,
+            school=self.school_other,
+            status="active",
+        )
+        OrganizationMember.objects.create(
+            organization=self.org_other,
+            user=self.principal_other,
+            role="owner",
+        )
         self.class_10a = SchoolClass.objects.create(school=self.school, name="10", section="A")
+        self.class_other_10a = SchoolClass.objects.create(school=self.school_other, name="10", section="A")
 
     def test_template_downloads(self):
         self.client.force_authenticate(user=self.principal)
@@ -94,7 +112,7 @@ class ImportersTests(APITestCase):
 
         # Check in DB that formula characters were escaped with leading quote
         t1 = Teacher.objects.filter(school=self.school).first()
-        self.assertTrue(t1.employee_id.startswith("'=SUM"))
+        self.assertTrue(t1.employee_id.endswith("'=SUM(1+1)") or "'=SUM" in t1.employee_id)
 
     def test_teacher_validation_errors_duplicate_and_bad_mobile(self):
         self.client.force_authenticate(user=self.principal)
@@ -120,16 +138,8 @@ class ImportersTests(APITestCase):
         self.assertIn("Duplicate Employee ID", str(res.data["errors"]))
         self.assertIn("First name is required", str(res.data["errors"]))
 
-    def test_student_validation_wrong_class_and_cross_school_duplicate(self):
+    def test_student_validation_wrong_class_and_duplicate_admission_number(self):
         self.client.force_authenticate(user=self.principal)
-
-        # Create student in other school with ADM999
-        other_user = User.objects.create_user(username="other_std", password="Password@123!")
-        Student.objects.create(
-            user=other_user,
-            school=self.school_other,
-            admission_number="ADM999",
-        )
 
         headers = [
             "Admission Number*", "First Name*", "Last Name*", "Class*", "Section*",
@@ -138,8 +148,8 @@ class ImportersTests(APITestCase):
         rows = [
             # Wrong class (12 B doesn't exist)
             ["ADM101", "Rahul", "Singh", "12", "B", "Vikram Singh", "9876543210", "father"],
-            # Cross-school duplicate admission number
-            ["ADM999", "Mohan", "Lal", "10", "A", "Shyam Lal", "9876543211", "father"],
+            # Duplicate admission number within this sheet
+            ["ADM101", "Mohan", "Lal", "10", "A", "Shyam Lal", "9876543211", "father"],
         ]
         xlsx_bytes = create_excel_file(headers, rows)
         uploaded = SimpleUploadedFile("students.xlsx", xlsx_bytes, content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
@@ -154,7 +164,7 @@ class ImportersTests(APITestCase):
         self.assertEqual(res.data["errorRows"], 2)
         errors_str = str(res.data["errors"])
         self.assertIn("does not exist in your school", errors_str)
-        self.assertIn("already registered at another school", errors_str)
+        self.assertIn("Duplicate Admission Number", errors_str)
 
     def test_student_import_sibling_guardian_deduplication_and_parent_user(self):
         self.client.force_authenticate(user=self.principal)
@@ -241,8 +251,8 @@ class ImportersTests(APITestCase):
         token1 = res1.data["importToken"]
         self.client.post("/api/v1/import/confirm/", {"importToken": token1})
 
-        self.assertEqual(Teacher.objects.filter(school=self.school, employee_id="EMP500").count(), 1)
-        t_user = Teacher.objects.get(school=self.school, employee_id="EMP500").user
+        self.assertEqual(Teacher.objects.filter(school=self.school, employee_id=f"{self.school.code}-EMP500").count(), 1)
+        t_user = Teacher.objects.get(school=self.school, employee_id=f"{self.school.code}-EMP500").user
         self.assertEqual(t_user.first_name, "Anita")
 
         # 2nd upload with updated designation and name
@@ -254,8 +264,8 @@ class ImportersTests(APITestCase):
         self.client.post("/api/v1/import/confirm/", {"importToken": token2})
 
         # Count should still be 1, updated
-        self.assertEqual(Teacher.objects.filter(school=self.school, employee_id="EMP500").count(), 1)
-        t_updated = Teacher.objects.get(school=self.school, employee_id="EMP500")
+        self.assertEqual(Teacher.objects.filter(school=self.school, employee_id=f"{self.school.code}-EMP500").count(), 1)
+        t_updated = Teacher.objects.get(school=self.school, employee_id=f"{self.school.code}-EMP500")
         self.assertEqual(t_updated.user.last_name, "Verma")
         self.assertEqual(t_updated.designation, "Head of Dept")
 
@@ -317,19 +327,19 @@ class ImportersTests(APITestCase):
         self.assertEqual(res_confirm.status_code, status.HTTP_200_OK)
 
         # Verify students and class links
-        s1 = Student.objects.get(school=self.school, admission_number="ADM301")
+        s1 = Student.objects.get(school=self.school, admission_number=f"{self.school.code}-ADM301")
         self.assertEqual(s1.class_section, self.class_10a)
 
-        s2 = Student.objects.get(school=self.school, admission_number="ADM302")
+        s2 = Student.objects.get(school=self.school, admission_number=f"{self.school.code}-ADM302")
         self.assertEqual(s2.class_section, self.class_10a)
 
-        s3 = Student.objects.get(school=self.school, admission_number="ADM303")
+        s3 = Student.objects.get(school=self.school, admission_number=f"{self.school.code}-ADM303")
         self.assertEqual(s3.class_section, class_10b)
 
-        s4 = Student.objects.get(school=self.school, admission_number="ADM304")
+        s4 = Student.objects.get(school=self.school, admission_number=f"{self.school.code}-ADM304")
         self.assertEqual(s4.class_section, self.class_10a)
 
-        s5 = Student.objects.get(school=self.school, admission_number="ADM305")
+        s5 = Student.objects.get(school=self.school, admission_number=f"{self.school.code}-ADM305")
         self.assertEqual(s5.class_section, class_10b)
 
         # Now test invalid class and verify available classes are listed in error message
@@ -350,4 +360,156 @@ class ImportersTests(APITestCase):
         err_msg = str(res_bad.data["errors"])
         self.assertIn("does not exist in your school", err_msg)
         self.assertIn("Available: 10-A, 10-B", err_msg)
+
+    def test_same_admission_number_in_two_schools(self):
+        """Two schools can have students with the same admission number without collision."""
+        headers = [
+            "Admission Number*", "First Name*", "Last Name*", "Class*", "Section*",
+            "Guardian Name*", "Guardian Mobile*", "Guardian Relation*",
+        ]
+
+        # 1. School 1 imports student with ADM-SAME-01
+        self.client.force_authenticate(user=self.principal)
+        rows_1 = [["ADM-SAME-01", "Aarav", "Sharma", "10", "A", "G1", "9826011111", "father"]]
+        xlsx_1 = create_excel_file(headers, rows_1)
+        f1 = SimpleUploadedFile("s1.xlsx", xlsx_1, content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        res1_prev = self.client.post("/api/v1/import/preview/", {"type": "student", "file": f1}, format="multipart")
+        self.assertEqual(res1_prev.status_code, status.HTTP_200_OK)
+        self.assertEqual(res1_prev.data["validRows"], 1)
+        res1_conf = self.client.post("/api/v1/import/confirm/", {"importToken": res1_prev.data["importToken"]})
+        self.assertEqual(res1_conf.status_code, status.HTTP_200_OK)
+
+        # 2. School 2 imports student with identical ADM-SAME-01
+        self.client.force_authenticate(user=self.principal_other)
+        rows_2 = [["ADM-SAME-01", "Vivaan", "Joshi", "10", "A", "G2", "9826022222", "father"]]
+        xlsx_2 = create_excel_file(headers, rows_2)
+        f2 = SimpleUploadedFile("s2.xlsx", xlsx_2, content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        res2_prev = self.client.post("/api/v1/import/preview/", {"type": "student", "file": f2}, format="multipart")
+        self.assertEqual(res2_prev.status_code, status.HTTP_200_OK)
+        self.assertEqual(res2_prev.data["validRows"], 1)
+        res2_conf = self.client.post("/api/v1/import/confirm/", {"importToken": res2_prev.data["importToken"]})
+        self.assertEqual(res2_conf.status_code, status.HTTP_200_OK)
+
+        # Check DB: internal storage has schoolcode prefix
+        std_1 = Student.objects.get(school=self.school, admission_number=f"{self.school.code}-ADM-SAME-01")
+        std_2 = Student.objects.get(school=self.school_other, admission_number=f"{self.school_other.code}-ADM-SAME-01")
+
+        # Serializer displays without prefix
+        from api.serializers import StudentSerializer
+        self.assertEqual(StudentSerializer(std_1).data["admissionNumber"], "ADM-SAME-01")
+        self.assertEqual(StudentSerializer(std_2).data["admissionNumber"], "ADM-SAME-01")
+
+    def test_sibling_across_two_schools_with_one_parent_user(self):
+        """Sibling attending another school reuses the single parent user account."""
+        headers = [
+            "Admission Number*", "First Name*", "Last Name*", "Class*", "Section*",
+            "Guardian Name*", "Guardian Mobile*", "Guardian Relation*",
+        ]
+
+        # 1. School 1 imports elder sibling with parent mobile 9826033333
+        self.client.force_authenticate(user=self.principal)
+        rows_1 = [["ADM-SIB-1", "Aditi", "Patel", "10", "A", "Rajesh Patel", "9826033333", "father"]]
+        xlsx_1 = create_excel_file(headers, rows_1)
+        f1 = SimpleUploadedFile("s1.xlsx", xlsx_1, content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        res1_prev = self.client.post("/api/v1/import/preview/", {"type": "student", "file": f1}, format="multipart")
+        self.client.post("/api/v1/import/confirm/", {"importToken": res1_prev.data["importToken"]})
+
+        parent_u = User.objects.get(username="9826033333")
+        self.assertEqual(parent_u.security.created_via, "import")
+        self.assertEqual(Guardian.objects.filter(user=parent_u, school=self.school, link_status="approved").count(), 1)
+
+        # 2. School 2 imports younger sibling with same parent mobile 9826033333
+        self.client.force_authenticate(user=self.principal_other)
+        rows_2 = [["ADM-SIB-2", "Ananya", "Patel", "10", "A", "Rajesh Patel", "9826033333", "father"]]
+        xlsx_2 = create_excel_file(headers, rows_2)
+        f2 = SimpleUploadedFile("s2.xlsx", xlsx_2, content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        res2_prev = self.client.post("/api/v1/import/preview/", {"type": "student", "file": f2}, format="multipart")
+        self.assertEqual(res2_prev.status_code, status.HTTP_200_OK)
+        self.assertEqual(res2_prev.data["validRows"], 1)
+        self.client.post("/api/v1/import/confirm/", {"importToken": res2_prev.data["importToken"]})
+
+        # Only one parent user exists in total
+        self.assertEqual(User.objects.filter(username="9826033333").count(), 1)
+        # Guardian records created for both schools
+        self.assertEqual(Guardian.objects.filter(user=parent_u).count(), 2)
+        self.assertTrue(Guardian.objects.filter(user=parent_u, school=self.school_other, link_status="approved").exists())
+
+    def test_squatted_numeric_username_and_non_import_user_blocked(self):
+        """Block 10-digit usernames in public registration and block non-import users from being reused by student import."""
+        # 1. Public registration rejects 10-digit numeric username
+        res_reg = self.client.post(
+            "/api/v1/auth/register/",
+            {
+                "username": "9826099999",
+                "password": "StrongPassword@123!",
+                "role": "parent",
+                "email": "test99@example.com",
+            },
+        )
+        self.assertEqual(res_reg.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("10-digit numeric usernames are reserved", str(res_reg.data))
+
+        # 2. Pre-existing non-import account exists
+        manual_u = User.objects.create_user(
+            username="9826088888",
+            password="ManualPassword@123!",
+            role="teacher",
+        )
+        # Default security created_via is 'manual', no approved guardian links
+        headers = [
+            "Admission Number*", "First Name*", "Last Name*", "Class*", "Section*",
+            "Guardian Name*", "Guardian Mobile*", "Guardian Relation*",
+        ]
+        rows = [["ADM-BLOCKED", "Rohan", "Mehta", "10", "A", "Ramesh Mehta", "9826088888", "father"]]
+        xlsx = create_excel_file(headers, rows)
+        f = SimpleUploadedFile("s.xlsx", xlsx, content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        self.client.force_authenticate(user=self.principal)
+        res_prev = self.client.post("/api/v1/import/preview/", {"type": "student", "file": f}, format="multipart")
+        self.assertEqual(res_prev.status_code, status.HTTP_200_OK)
+        self.assertEqual(res_prev.data["validRows"], 0)
+        self.assertEqual(res_prev.data["errorRows"], 1)
+        self.assertIn("already registered by another account", str(res_prev.data["errors"]))
+
+    def test_existing_parent_password_untouched(self):
+        """When an existing parent is reused, their password is never changed and sheet marks 'Existing account'."""
+        headers = [
+            "Admission Number*", "First Name*", "Last Name*", "Class*", "Section*",
+            "Guardian Name*", "Guardian Mobile*", "Guardian Relation*",
+        ]
+
+        # 1. School imports 1st student
+        self.client.force_authenticate(user=self.principal)
+        rows_1 = [["ADM-PW-1", "Karan", "Kapoor", "10", "A", "Rishi Kapoor", "9826044444", "father"]]
+        xlsx_1 = create_excel_file(headers, rows_1)
+        f1 = SimpleUploadedFile("s1.xlsx", xlsx_1, content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        res1_prev = self.client.post("/api/v1/import/preview/", {"type": "student", "file": f1}, format="multipart")
+        res1_conf = self.client.post("/api/v1/import/confirm/", {"importToken": res1_prev.data["importToken"]})
+        self.assertEqual(res1_conf.status_code, status.HTTP_200_OK)
+
+        parent_u = User.objects.get(username="9826044444")
+        initial_pw_hash = parent_u.password
+
+        # 2. School imports 2nd student (sibling) with same guardian mobile
+        rows_2 = [["ADM-PW-2", "Kavya", "Kapoor", "10", "A", "Rishi Kapoor", "9826044444", "father"]]
+        xlsx_2 = create_excel_file(headers, rows_2)
+        f2 = SimpleUploadedFile("s2.xlsx", xlsx_2, content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        res2_prev = self.client.post("/api/v1/import/preview/", {"type": "student", "file": f2}, format="multipart")
+        self.assertEqual(res2_prev.data["validRows"], 1)
+        res2_conf = self.client.post("/api/v1/import/confirm/", {"importToken": res2_prev.data["importToken"]})
+        self.assertEqual(res2_conf.status_code, status.HTTP_200_OK)
+
+        # Verify password in DB was NOT touched
+        parent_u.refresh_from_db()
+        self.assertEqual(parent_u.password, initial_pw_hash)
+
+        # Verify credentials sheet has "Existing account" for parent row
+        wb = openpyxl.load_workbook(io.BytesIO(res2_conf.content))
+        ws = wb.active
+        parent_found = False
+        for row in ws.iter_rows(values_only=True):
+            # Column headers: [Type, Name, Identifier, Username, Password, Note]
+            if len(row) >= 5 and row[0] == "Parent":
+                parent_found = True
+                self.assertEqual(row[4], "Existing account")
+        self.assertTrue(parent_found)
 

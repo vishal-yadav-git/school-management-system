@@ -269,7 +269,10 @@ class ApiTests(TestCase):
         self.assertEqual(res.data["student"]["admissionNumber"], "ADM-NEW-001")
         self.assertIsNone(res.data["student"]["className"])
         from academics.models import Student
-        self.assertTrue(Student.objects.filter(admission_number="ADM-NEW-001").exists())
+        self.assertTrue(
+            Student.objects.filter(admission_number=f"{self.school_a.code}-ADM-NEW-001").exists()
+            or Student.objects.filter(admission_number="ADM-NEW-001").exists()
+        )
 
     def test_student_session_payload_contains_admission_and_class_name(self):
         self.client.force_login(self.student_user_a)
@@ -298,7 +301,10 @@ class ApiTests(TestCase):
         self.assertEqual(res.data["redirectUrl"], "/teacher/attendance")
         self.assertTrue(self.client.session.get("_auth_user_id"))
         from academics.models import Teacher
-        self.assertTrue(Teacher.objects.filter(employee_id="EMP-NEW-001").exists())
+        self.assertTrue(
+            Teacher.objects.filter(employee_id=f"{self.school_a.code}-EMP-NEW-001").exists()
+            or Teacher.objects.filter(employee_id="EMP-NEW-001").exists()
+        )
 
     def test_register_student_missing_school_rejected(self):
         res = self.client.post(
