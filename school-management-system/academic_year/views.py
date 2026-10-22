@@ -1,4 +1,5 @@
 from django.db import transaction
+from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -101,3 +102,48 @@ def academic_years(request):
                 )
 
         return Response(AcademicYearSerializer(ay).data, status=status.HTTP_201_CREATED)
+
+
+@api_view(["POST"])
+@permission_classes([IsPrincipalOrSuperuser])
+def academic_year_set_current(request, pk):
+    """
+    POST /api/v1/academic-years/<pk>/set-current/
+    Sets this academic year as current for its school.
+    Unsets any previous current year in the same transaction.
+    Logs academic_year.set_current in AuditLog.
+    """
+    user = request.user
+    if user.is_superuser:
+        ay = get_object_or_404(AcademicYear, pk=pk)
+        school = ay.school
+    else:
+        school = get_principal_school(user)
+        ay = get_object_or_404(AcademicYear, pk=pk, school=school)
+
+    if ay.is_current:
+        return Response(AcademicYearSerializer(ay).data, status=status.HTTP_200_OK)
+
+    with transaction.atomic():
+        prev_current = AcademicYear.objects.filter(school=school, is_current=True).exclude(pk=ay.pk).first()
+        if prev_current:
+            prev_current.is_current = False
+            prev_current.save(update_fields=["is_current"])
+
+        ay.is_current = True
+        ay.save(update_fields=["is_current"])
+
+        log_action(
+            actor=user,
+            school=school,
+            action="academic_year.set_current",
+            obj=ay,
+            changes={
+                "previousCurrentId": prev_current.id if prev_current else None,
+                "currentId": ay.id,
+                "name": ay.name,
+            },
+            request=request,
+        )
+
+    return Response(AcademicYearSerializer(ay).data, status=status.HTTP_200_OK)

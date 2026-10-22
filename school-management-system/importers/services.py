@@ -10,7 +10,12 @@ from academics.models import SchoolClass, Student, Teacher
 from accounts.models import User
 from audit.services import log_action
 from credentials.models import UserSecurity
-from credentials.services import generate_random_password, generate_username
+from credentials.services import (
+    format_display_id,
+    generate_password_for_mode,
+    generate_random_password,
+    generate_username,
+)
 from guardians.models import Guardian, StudentGuardian
 from guardians.services import normalize_mobile
 
@@ -470,7 +475,7 @@ def validate_student_import(file_obj, school):
     return valid_rows, errors, len(data_rows)
 
 
-def commit_teacher_import(valid_rows, actor, school, request=None):
+def commit_teacher_import(valid_rows, actor, school, password_mode="random", request=None):
     """
     Executes teacher import inside an atomic transaction.
     Idempotent: updates existing teacher if employee_id already exists in school.
@@ -512,7 +517,14 @@ def commit_teacher_import(valid_rows, actor, school, request=None):
             else:
                 # New teacher
                 username = generate_username(school.code, "T", emp_id)
-                temp_password = generate_random_password(12)
+                disp_eid = format_display_id(school.code, internal_eid)
+                temp_password = generate_password_for_mode(
+                    password_mode,
+                    "teacher",
+                    display_id=disp_eid,
+                    mobile=mobile,
+                    school_code=school.code,
+                )
 
                 user = User.objects.create_user(
                     username=username,
@@ -532,16 +544,18 @@ def commit_teacher_import(valid_rows, actor, school, request=None):
                     qualification=department,
                 )
 
-                UserSecurity.objects.create(
+                UserSecurity.objects.update_or_create(
                     user=user,
-                    must_change_password=True,
-                    created_via="import",
+                    defaults={
+                        "must_change_password": True,
+                        "created_via": "import",
+                    },
                 )
 
                 credentials_rows.append({
                     "role": "Teacher",
                     "name": f"{first_name} {last_name}",
-                    "identifier": format_display_id(school.code, internal_eid),
+                    "identifier": disp_eid,
                     "username": username,
                     "password": temp_password,
                     "notes": "Must change password on first login",
@@ -558,7 +572,7 @@ def commit_teacher_import(valid_rows, actor, school, request=None):
     return credentials_rows
 
 
-def commit_student_import(valid_rows, actor, school, request=None):
+def commit_student_import(valid_rows, actor, school, password_mode="random", request=None):
     """
     Executes student import with guardian deduplication and linking.
     Idempotent: updates existing student if admission_number exists in school.
@@ -598,7 +612,14 @@ def commit_student_import(valid_rows, actor, school, request=None):
             else:
                 # New student: User.mobile stays blank as per Decision 4
                 username = generate_username(school.code, "S", adm_no)
-                temp_password = generate_random_password(12)
+                disp_adm = format_display_id(school.code, internal_adm)
+                temp_password = generate_password_for_mode(
+                    password_mode,
+                    "student",
+                    display_id=disp_adm,
+                    mobile=guardian_mobile,
+                    school_code=school.code,
+                )
 
                 user = User.objects.create_user(
                     username=username,
@@ -617,43 +638,33 @@ def commit_student_import(valid_rows, actor, school, request=None):
                     admission_number=internal_adm,
                 )
 
-                UserSecurity.objects.create(
+                UserSecurity.objects.update_or_create(
                     user=user,
-                    must_change_password=True,
-                    created_via="import",
+                    defaults={
+                        "must_change_password": True,
+                        "created_via": "import",
+                    },
                 )
 
                 credentials_rows.append({
                     "role": "Student",
                     "name": f"{first_name} {last_name}",
-                    "identifier": format_display_id(school.code, internal_adm),
+                    "identifier": disp_adm,
                     "username": username,
                     "password": temp_password,
                     "notes": "Must change password on first login",
                 })
 
-            # Guardian handling: Deduplicate by (school, mobile)
-            guardian = Guardian.objects.filter(
-                school=school,
-                mobile=guardian_mobile,
-            ).first()
-
-            if not guardian:
-                guardian = Guardian.objects.create(
-                    school=school,
-                    full_name=guardian_name,
-                    mobile=guardian_mobile,
-                    link_status="approved",
-                )
-            else:
-                if guardian.link_status != "approved":
-                    guardian.link_status = "approved"
-                    guardian.save()
-
             # Parent User handling: Lookup by username = 10-digit mobile (Decision 4)
             parent_user = User.objects.filter(username=guardian_mobile).first()
             if not parent_user:
-                parent_temp_password = generate_random_password(12)
+                parent_temp_password = generate_password_for_mode(
+                    password_mode,
+                    "parent",
+                    display_id=guardian_mobile,
+                    mobile=guardian_mobile,
+                    school_code=school.code,
+                )
                 parent_user = User.objects.create_user(
                     username=guardian_mobile,
                     email=f"parent.{guardian_mobile}@indoreedu.local",
@@ -662,10 +673,12 @@ def commit_student_import(valid_rows, actor, school, request=None):
                     first_name=guardian_name,
                     role="parent",
                 )
-                UserSecurity.objects.create(
+                UserSecurity.objects.update_or_create(
                     user=parent_user,
-                    must_change_password=True,
-                    created_via="import",
+                    defaults={
+                        "must_change_password": True,
+                        "created_via": "import",
+                    },
                 )
                 if guardian_mobile not in seen_parent_mobiles_in_credentials:
                     seen_parent_mobiles_in_credentials.add(guardian_mobile)
@@ -690,9 +703,33 @@ def commit_student_import(valid_rows, actor, school, request=None):
                         "notes": "Existing account",
                     })
 
-            # Link Guardian to Parent User
-            if guardian.user != parent_user:
-                guardian.user = parent_user
+            # Guardian handling: Deduplicate by (school, mobile) and ensure user constraint is respected
+            guardian = Guardian.objects.filter(
+                school=school,
+                mobile=guardian_mobile,
+            ).first()
+
+            # Ensure we don't violate unique_guardian_school_user
+            existing_guardian_for_user = Guardian.objects.filter(school=school, user=parent_user).first()
+
+            if existing_guardian_for_user:
+                guardian = existing_guardian_for_user
+                if guardian.link_status != "approved":
+                    guardian.link_status = "approved"
+                    guardian.save()
+            elif not guardian:
+                guardian = Guardian.objects.create(
+                    school=school,
+                    full_name=guardian_name,
+                    mobile=guardian_mobile,
+                    user=parent_user,
+                    link_status="approved",
+                )
+            else:
+                if guardian.user != parent_user:
+                    guardian.user = parent_user
+                if guardian.link_status != "approved":
+                    guardian.link_status = "approved"
                 guardian.save()
 
             # Link Student to Guardian
@@ -714,3 +751,4 @@ def commit_student_import(valid_rows, actor, school, request=None):
         )
 
     return credentials_rows
+

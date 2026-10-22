@@ -77,6 +77,7 @@ def session_payload(user):
         prefix = f"{code}-"
         display_adm = val[len(prefix):] if (code and val.startswith(prefix)) else val
         data["student"] = {
+            "id": student.id,
             "admissionNumber": display_adm,
             "className": class_name,
         }
@@ -256,3 +257,230 @@ def student_me(request):
     if not profile:
         return Response({"detail": "Student profile not found"}, status=status.HTTP_404_NOT_FOUND)
     return Response(StudentSerializer(profile).data)
+
+
+@api_view(["GET"])
+@permission_classes([IsPrincipalOrSuperuser])
+def dashboard_summary(request):
+    u = request.user
+    from organizations.services import get_active_school_for_user
+    active_school = get_active_school_for_user(request) or user_school(u)
+
+    if u.is_superuser:
+        school_id = request.query_params.get("school")
+        if school_id:
+            active_school = get_object_or_404(School, pk=school_id)
+        elif not active_school:
+            active_school = School.objects.first()
+
+    if not active_school:
+        return Response({"detail": "No active school found for your account."}, status=status.HTTP_400_BAD_REQUEST)
+
+    if not u.is_superuser and active_school:
+        so = getattr(active_school, "organization_membership", None)
+        if so and so.status == "pending":
+            return Response(
+                {
+                    "detail": "School email verification is pending. Please verify your email before accessing the dashboard.",
+                    "code": "EMAIL_VERIFICATION_PENDING",
+                },
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+    from django.db.models import Count, Q
+    from django.utils import timezone
+    from academic_year.models import AcademicYear
+    from attendance.models import AttendanceSession, AttendanceRecord
+    from guardians.models import Guardian
+
+    today = timezone.localdate()
+
+    # Core Counts (aggregate & counts)
+    total_students = Student.objects.filter(school=active_school).count()
+    total_teachers = Teacher.objects.filter(school=active_school).count()
+    total_classes = SchoolClass.objects.filter(school=active_school).count()
+    total_subjects = Subject.objects.filter(school=active_school).count()
+
+    # Active Academic Year
+    ay = AcademicYear.objects.filter(school=active_school, is_current=True).first()
+    if not ay:
+        ay = AcademicYear.objects.filter(school=active_school).order_by("-start_date").first()
+
+    ay_data = None
+    if ay:
+        ay_data = {
+            "id": ay.id,
+            "name": ay.name,
+            "startDate": str(ay.start_date),
+            "endDate": str(ay.end_date),
+            "isCurrent": ay.is_current,
+        }
+
+    # Attendance Today (Plan Addition C: "Not taken yet" when 0 marked classes)
+    sessions = AttendanceSession.objects.filter(school=active_school, date=today)
+    marked_classes = sessions.count()
+    not_taken_classes = max(0, total_classes - marked_classes)
+
+    present_pct = None
+    if marked_classes > 0:
+        rec_agg = AttendanceRecord.objects.filter(session__in=sessions).aggregate(
+            total=Count("id"),
+            present=Count("id", filter=Q(status="present")),
+            absent=Count("id", filter=Q(status="absent")),
+        )
+        marked_students = rec_agg["total"] or 0
+        present_cnt = rec_agg["present"] or 0
+        present_pct = round((present_cnt / marked_students) * 100, 1) if marked_students > 0 else 0.0
+
+    # Pending Guardian Requests
+    pending_guardians = Guardian.objects.filter(school=active_school, link_status="pending").count()
+
+    # Setup Status
+    ay_current = bool(ay and ay.is_current)
+    completed_steps = (1 if ay_current else 0) + (1 if total_classes > 0 else 0) + (1 if total_teachers > 0 else 0) + (1 if total_students > 0 else 0)
+    overall_progress = int((completed_steps / 4.0) * 100)
+
+    data = {
+        "school": {
+            "id": active_school.id,
+            "name": active_school.name,
+            "code": active_school.code,
+        },
+        "totalStudents": total_students,
+        "totalTeachers": total_teachers,
+        "classesTotal": total_classes,
+        "classesTaken": marked_classes,
+        "classesNotTaken": not_taken_classes,
+        "presentToday": {
+            "taken": marked_classes > 0,
+            "percent": present_pct,
+        },
+        "pendingGuardianRequests": pending_guardians,
+        "currentAcademicYear": ay_data,
+        "setupProgress": {
+            "overallProgress": overall_progress,
+            "isComplete": overall_progress == 100,
+        },
+    }
+    return Response(data)
+
+
+@api_view(["GET"])
+@permission_classes([IsTeacher])
+def teacher_my_classes(request):
+    """
+    GET /api/v1/teacher/my-classes/
+    Returns unified classes for the teacher:
+    - Designated Class Teacher classes (role="class_teacher", canMarkAttendance=True)
+    - Subject Teacher classes (role="subject_teacher", canMarkAttendance=False, syllabus-only)
+    - Granular teacher permissions
+    - Active Academic Year date bounds
+    """
+    teacher = getattr(request.user, "teacher_profile", None)
+    if not teacher:
+        return Response({"detail": "Teacher profile not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    school = teacher.school
+
+    from teacher_assignments.models import ClassSubjectTeacher, TeacherPermission
+    from academic_year.models import AcademicYear
+
+    # 1. Designated class teacher classes
+    ct_class_ids = set(SchoolClass.objects.filter(class_teacher=teacher).values_list("id", flat=True))
+
+    # 2. Subject teacher mappings
+    st_mappings = ClassSubjectTeacher.objects.filter(teacher=teacher).select_related("school_class", "subject")
+
+    class_subjects_map = {}
+    st_class_ids = set()
+    for m in st_mappings:
+        st_class_ids.add(m.school_class_id)
+        if m.school_class_id not in class_subjects_map:
+            class_subjects_map[m.school_class_id] = []
+        class_subjects_map[m.school_class_id].append({
+            "id": m.subject.id,
+            "name": m.subject.name,
+            "code": m.subject.code,
+        })
+
+    all_class_ids = ct_class_ids | st_class_ids
+    classes_qs = SchoolClass.objects.filter(id__in=all_class_ids).order_by("name", "section").prefetch_related("students")
+
+    classes_data = []
+    for c in classes_qs:
+        is_ct = (c.id in ct_class_ids)
+        # Plan Addition A: Attendance permission is strictly class-teacher-only!
+        classes_data.append({
+            "id": c.id,
+            "name": c.name,
+            "section": c.section,
+            "displayName": f"Class {c.name}-{c.section}",
+            "role": "class_teacher" if is_ct else "subject_teacher",
+            "isClassTeacher": is_ct,
+            "canMarkAttendance": is_ct,
+            "canTakeAttendance": is_ct,
+            "totalStudents": c.students.count(),
+            "subjects": class_subjects_map.get(c.id, []),
+        })
+
+    perms = list(TeacherPermission.objects.filter(teacher=teacher).values_list("permission_key", flat=True))
+
+    ay = AcademicYear.objects.filter(school=school, is_current=True).first()
+    if not ay:
+        ay = AcademicYear.objects.filter(school=school).order_by("-start_date").first()
+
+    ay_data = None
+    if ay:
+        ay_data = {
+            "id": ay.id,
+            "name": ay.name,
+            "startDate": str(ay.start_date),
+            "endDate": str(ay.end_date),
+        }
+
+    return Response({
+        "teacher": {
+            "id": teacher.id,
+            "name": request.user.get_full_name() or request.user.username,
+            "employeeId": teacher.employee_id,
+        },
+        "permissions": perms,
+        "currentAcademicYear": ay_data,
+        "academicYear": ay_data,
+        "classes": classes_data,
+    })
+
+
+@api_view(["DELETE"])
+@permission_classes([IsPrincipalOrSuperuser])
+def class_subject_teacher_delete_view(request, class_id, mapping_id):
+    """
+    DELETE /api/v1/classes/<class_id>/subject-teachers/<mapping_id>/
+    Principal removes a subject teacher mapping.
+    """
+    from organizations.services import get_active_school_for_user
+    active_school = get_active_school_for_user(request)
+    school_class = get_object_or_404(SchoolClass, pk=class_id)
+
+    if not request.user.is_superuser and active_school and school_class.school_id != active_school.id:
+        return Response({"detail": "Class does not belong to your school."}, status=status.HTTP_403_FORBIDDEN)
+
+    target_school = active_school or school_class.school
+
+    from teacher_assignments.services import unassign_class_subject_teacher
+    from django.core.exceptions import ValidationError as DjangoValidationError
+
+    try:
+        unassign_class_subject_teacher(
+            school=target_school,
+            mapping_id=mapping_id,
+            actor=request.user,
+            request=request,
+        )
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    except DjangoValidationError as exc:
+        msg = exc.messages if hasattr(exc, "messages") else str(exc)
+        return Response({"detail": msg}, status=status.HTTP_400_BAD_REQUEST)
+
+
+

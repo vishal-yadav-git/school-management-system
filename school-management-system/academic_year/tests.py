@@ -173,3 +173,49 @@ class AcademicYearTests(TestCase):
                 format="json",
             )
             self.assertEqual(res_post.status_code, status.HTTP_403_FORBIDDEN, f"{user.role} should be 403 on POST")
+
+    def test_set_current_academic_year(self):
+        # Create year 1 as current
+        ay1 = AcademicYear.objects.create(
+            school=self.school_a,
+            name="2025-26",
+            start_date="2025-04-01",
+            end_date="2026-03-31",
+            is_current=True,
+        )
+        # Create year 2 as non-current
+        ay2 = AcademicYear.objects.create(
+            school=self.school_a,
+            name="2026-27",
+            start_date="2026-04-01",
+            end_date="2027-03-31",
+            is_current=False,
+        )
+
+        # Non-principal users get 403
+        for user in [self.teacher_user, self.student_user, self.parent_user]:
+            self.client.force_authenticate(user=user)
+            res = self.client.post(f"/api/v1/academic-years/{ay2.id}/set-current/")
+            self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+        # Principal A sets ay2 as current
+        self.client.force_authenticate(user=self.principal_a)
+        res = self.client.post(f"/api/v1/academic-years/{ay2.id}/set-current/")
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertTrue(res.data["isCurrent"])
+
+        ay1.refresh_from_db()
+        ay2.refresh_from_db()
+        self.assertFalse(ay1.is_current)
+        self.assertTrue(ay2.is_current)
+
+        # Principal A cannot set current for year belonging to school B
+        ay_b = AcademicYear.objects.create(
+            school=self.school_b,
+            name="2026-27",
+            start_date="2026-04-01",
+            end_date="2027-03-31",
+            is_current=False,
+        )
+        res_b = self.client.post(f"/api/v1/academic-years/{ay_b.id}/set-current/")
+        self.assertEqual(res_b.status_code, status.HTTP_404_NOT_FOUND)

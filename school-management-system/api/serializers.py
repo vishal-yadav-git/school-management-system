@@ -12,10 +12,15 @@ class UserSerializer(serializers.ModelSerializer):
     firstName = serializers.CharField(source="first_name", read_only=True)
     lastName = serializers.CharField(source="last_name", read_only=True)
     isSuperuser = serializers.BooleanField(source="is_superuser", read_only=True)
+    mustChangePassword = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ["id", "username", "firstName", "lastName", "email", "role", "isSuperuser", "mobile"]
+        fields = ["id", "username", "firstName", "lastName", "email", "role", "isSuperuser", "mobile", "mustChangePassword"]
+
+    def get_mustChangePassword(self, obj):
+        sec = getattr(obj, "security", None)
+        return bool(sec.must_change_password) if sec else False
 
 
 class SchoolSerializer(serializers.ModelSerializer):
@@ -163,6 +168,7 @@ class StudentSerializer(serializers.ModelSerializer):
     email = serializers.CharField(source="user.email", read_only=True)
     mobile = serializers.CharField(source="user.mobile", read_only=True)
     admissionNumber = serializers.SerializerMethodField()
+    displayAdmissionNumber = serializers.SerializerMethodField()
     classSection = serializers.PrimaryKeyRelatedField(source="class_section", read_only=True)
     className = serializers.SerializerMethodField()
     schoolName = serializers.CharField(source="school.name", read_only=True)
@@ -178,6 +184,7 @@ class StudentSerializer(serializers.ModelSerializer):
             "email",
             "mobile",
             "admissionNumber",
+            "displayAdmissionNumber",
             "gender",
             "date_of_birth",
             "address",
@@ -195,6 +202,9 @@ class StudentSerializer(serializers.ModelSerializer):
         if code and val.startswith(prefix):
             return val[len(prefix):]
         return val
+
+    def get_displayAdmissionNumber(self, obj):
+        return self.get_admissionNumber(obj)
 
     def get_className(self, obj):
         c = obj.class_section

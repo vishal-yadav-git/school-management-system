@@ -5,12 +5,13 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from academic_year.models import AcademicYear
-from academics.models import SchoolClass, Student, Teacher
+from academics.models import SchoolClass, Student, Teacher, Subject
 from accounts.models import User
 from attendance.models import AttendanceRecord, AttendanceSession
 from audit.models import AuditLog
 from guardians.models import Guardian, StudentGuardian
 from schools.models import School
+from teacher_assignments.models import ClassSubjectTeacher
 
 
 class AttendanceTests(TestCase):
@@ -204,3 +205,101 @@ class AttendanceTests(TestCase):
         self.assertEqual(res_trend.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res_trend.data), 7)
         self.assertEqual(res_trend.data[-1]["presentPercent"], 50.0)
+
+    def test_subject_teacher_cannot_post_attendance(self):
+        # Teacher B is assigned as subject teacher (e.g. Mathematics) for Class A, but is NOT class teacher
+        subj = Subject.objects.create(name="Mathematics", code="MATH-10", school=self.school_a)
+        ClassSubjectTeacher.objects.create(
+            school=self.school_a,
+            school_class=self.class_a,
+            subject=subj,
+            teacher=self.teacher_b,
+        )
+
+        self.client.force_authenticate(user=self.teacher_user_b)
+        payload = {
+            "date": str(self.today),
+            "records": [
+                {"studentId": self.student_1.id, "status": "present"},
+                {"studentId": self.student_2.id, "status": "present"},
+            ],
+        }
+        res_put = self.client.put(f"/api/v1/attendance/class/{self.class_a.id}/", data=payload, format="json")
+        self.assertEqual(res_put.status_code, status.HTTP_403_FORBIDDEN)
+
+        res_post = self.client.post(f"/api/v1/attendance/class/{self.class_a.id}/", data=payload, format="json")
+        self.assertEqual(res_post.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_teacher_past_date_rejected(self):
+        self.client.force_authenticate(user=self.teacher_user_a)
+        past_date = self.today - timezone.timedelta(days=2)
+        payload = {
+            "date": str(past_date),
+            "records": [
+                {"studentId": self.student_1.id, "status": "present"},
+                {"studentId": self.student_2.id, "status": "present"},
+            ],
+        }
+        res = self.client.post(f"/api/v1/attendance/class/{self.class_a.id}/", data=payload, format="json")
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertIn("detail", res.data)
+
+    def test_principal_past_date_allowed_and_logged(self):
+        self.client.force_authenticate(user=self.principal_a)
+        past_date = self.today - timezone.timedelta(days=2)
+        payload = {
+            "date": str(past_date),
+            "records": [
+                {"studentId": self.student_1.id, "status": "present"},
+                {"studentId": self.student_2.id, "status": "absent", "remark": "Past date medical"},
+            ],
+        }
+        res = self.client.post(f"/api/v1/attendance/class/{self.class_a.id}/", data=payload, format="json")
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        # AuditLog row exists for attendance.create
+        audit_entry = AuditLog.objects.filter(school=self.school_a, action="attendance.create").filter(changes__date=str(past_date)).first()
+        self.assertIsNotNone(audit_entry)
+        self.assertEqual(audit_entry.actor, self.principal_a)
+
+    def test_user_from_another_school_forbidden(self):
+        # Create School B and its principal and teacher
+        school_b = School.objects.create(name="School B", code="SCH-B", address="Road B", city="Indore")
+        principal_b = User.objects.create_user(username="principal_b", password="Password@123", role="principal")
+        school_b.principal = principal_b
+        school_b.save()
+
+        teacher_user_b2 = User.objects.create_user(username="teacher_b2", password="Password@123", role="teacher")
+        Teacher.objects.create(user=teacher_user_b2, school=school_b, employee_id="TB02")
+
+        payload = {
+            "date": str(self.today),
+            "records": [
+                {"studentId": self.student_1.id, "status": "present"},
+                {"studentId": self.student_2.id, "status": "present"},
+            ],
+        }
+
+        # Principal B gets 403 on School A's class
+        self.client.force_authenticate(user=principal_b)
+        res_p = self.client.get(f"/api/v1/attendance/class/{self.class_a.id}/")
+        self.assertEqual(res_p.status_code, status.HTTP_403_FORBIDDEN)
+        res_p_post = self.client.post(f"/api/v1/attendance/class/{self.class_a.id}/", data=payload, format="json")
+        self.assertEqual(res_p_post.status_code, status.HTTP_403_FORBIDDEN)
+
+        # Teacher B from School B gets 403
+        self.client.force_authenticate(user=teacher_user_b2)
+        res_t = self.client.get(f"/api/v1/attendance/class/{self.class_a.id}/")
+        self.assertEqual(res_t.status_code, status.HTTP_403_FORBIDDEN)
+        res_t_post = self.client.post(f"/api/v1/attendance/class/{self.class_a.id}/", data=payload, format="json")
+        self.assertEqual(res_t_post.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_display_admission_number_in_roster(self):
+        self.client.force_authenticate(user=self.teacher_user_a)
+        res = self.client.get(f"/api/v1/attendance/class/{self.class_a.id}/")
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        # s1 has admission_number="SCH-A-001", so displayAdmissionNumber should be "001"
+        s1_data = next((s for s in res.data["students"] if s["studentId"] == self.student_1.id), None)
+        self.assertIsNotNone(s1_data)
+        self.assertEqual(s1_data["admissionNumber"], "SCH-A-001")
+        self.assertEqual(s1_data["displayAdmissionNumber"], "001")

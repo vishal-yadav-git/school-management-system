@@ -37,12 +37,12 @@ def check_class_attendance_permission(user, school_class):
     raise PermissionDenied("You do not have permission to access attendance.")
 
 
-@api_view(["GET", "PUT"])
+@api_view(["GET", "PUT", "POST"])
 @permission_classes([IsAuthenticated])
 def class_attendance(request, class_id):
     """
     GET /api/v1/attendance/class/<classId>/?date=YYYY-MM-DD
-    PUT /api/v1/attendance/class/<classId>/
+    PUT or POST /api/v1/attendance/class/<classId>/
     """
     school_class = get_object_or_404(SchoolClass, id=class_id)
     check_class_attendance_permission(request.user, school_class)
@@ -59,7 +59,7 @@ def class_attendance(request, class_id):
         roster = get_class_attendance_roster(school_class, date=target_date)
         return Response(roster)
 
-    elif request.method == "PUT":
+    elif request.method in ("PUT", "POST"):
         serializer = AttendanceSessionInputSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

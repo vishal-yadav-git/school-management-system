@@ -171,6 +171,9 @@ def import_confirm(request):
 
     valid_rows = cached_data.get("valid_rows", [])
     import_type = cached_data.get("type")
+    password_mode = str(request.data.get("passwordMode") or "random").strip().lower()
+    if password_mode not in ("random", "id_pattern"):
+        password_mode = "random"
 
     if not valid_rows:
         return Response({"detail": "No valid rows to import."}, status=status.HTTP_400_BAD_REQUEST)
@@ -181,6 +184,7 @@ def import_confirm(request):
                 valid_rows=valid_rows,
                 actor=request.user,
                 school=active_school,
+                password_mode=password_mode,
                 request=request,
             )
         else:
@@ -188,6 +192,7 @@ def import_confirm(request):
                 valid_rows=valid_rows,
                 actor=request.user,
                 school=active_school,
+                password_mode=password_mode,
                 request=request,
             )
     except Exception as exc:
@@ -210,5 +215,7 @@ def import_confirm(request):
     response["Content-Disposition"] = f'attachment; filename="{filename}"'
     response["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
     response["Pragma"] = "no-cache"
+    response["Access-Control-Expose-Headers"] = "Content-Disposition"
 
     return response
+

@@ -108,3 +108,31 @@ def assign_class_subject_teacher(school, school_class, subject, teacher, actor=N
     )
 
     return cst
+
+
+def unassign_class_subject_teacher(school, mapping_id, actor=None, request=None):
+    """
+    Unassigns a teacher from teaching a subject for a class section.
+    """
+    mapping = ClassSubjectTeacher.objects.filter(school=school, id=mapping_id).first()
+    if not mapping:
+        raise ValidationError("Subject teacher mapping not found.")
+
+    subject_name = mapping.subject.name
+    class_name = f"{mapping.school_class.name}-{mapping.school_class.section}"
+    teacher_name = mapping.teacher.user.get_full_name() or mapping.teacher.user.username
+
+    mapping.delete()
+
+    if actor:
+        log_action(
+            actor=actor,
+            school=school,
+            action="subject_teacher.unassign",
+            obj=mapping.school_class,
+            changes={"subject": subject_name, "class": class_name, "teacher": teacher_name},
+            request=request,
+        )
+
+    return True
+

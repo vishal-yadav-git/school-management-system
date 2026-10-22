@@ -6,14 +6,57 @@ from django.conf import settings
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
+from django.db import transaction
 from django.utils import timezone
 import openpyxl
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
 
+from academics.models import SchoolClass, Student, Teacher
 from accounts.models import User
 from audit.services import log_action
+from guardians.models import Guardian, StudentGuardian
 from .models import UserSecurity
+
+
+def format_display_id(school_code, internal_id):
+    if not internal_id:
+        return ""
+    prefix = f"{school_code}-" if school_code else ""
+    if prefix and str(internal_id).startswith(prefix):
+        return str(internal_id)[len(prefix):]
+    return str(internal_id)
+
+
+def generate_password_for_mode(mode, role, display_id="", mobile="", school_code=""):
+    """
+    mode: 'random' (default) | 'id_pattern'
+    id_pattern:
+      student: "<AdmissionNo>@<last4 of guardian mobile>"
+      teacher: "<EmployeeID>@<last4 of mobile>" (if no mobile, fall back to random)
+      parent: "<last4 of mobile>@<schoolcode>"
+    Use the display ID without the school prefix.
+    """
+    mode = str(mode or "").strip().lower()
+    clean_digits = "".join(filter(str.isdigit, str(mobile or "")))
+    last4 = clean_digits[-4:] if len(clean_digits) >= 4 else ""
+
+    if mode == "id_pattern":
+        if role == "student":
+            clean_id = str(display_id or "").strip()
+            if clean_id and last4:
+                return f"{clean_id}@{last4}"
+        elif role == "teacher":
+            clean_id = str(display_id or "").strip()
+            if clean_id and last4:
+                return f"{clean_id}@{last4}"
+            return generate_random_password(12)
+        elif role == "parent":
+            clean_school = re.sub(r"[^A-Za-z0-9]", "", str(school_code or "").upper())
+            if last4 and clean_school:
+                return f"{last4}@{clean_school}"
+
+    return generate_random_password(12)
 
 
 def generate_username(school_code, role_code, identifier):
@@ -101,11 +144,41 @@ def reset_password_for_user(actor, target_user, school, request=None):
 
 def change_user_password(user, old_password, new_password, request=None):
     """
-    Changes a user's password, validates password complexity,
-    clears must_change_password, and updates session auth hash.
+    Changes a user's password, validates that new password is not equal to old password,
+    username, or ID, runs Django password validators, clears must_change_password, and updates session.
     """
     if not user.check_password(old_password):
         raise ValidationError({"oldPassword": "Old password is incorrect."})
+
+    # Cannot be equal to old password
+    if old_password and new_password == old_password:
+        raise ValidationError({"newPassword": "New password cannot be the same as the old password."})
+
+    # Cannot be equal to username
+    if new_password.lower() == user.username.lower():
+        raise ValidationError({"newPassword": "New password cannot be the same as your username."})
+
+    # Cannot be equal to student admission number
+    if hasattr(user, "student_profile") and user.student_profile:
+        adm = user.student_profile.admission_number or ""
+        code = user.student_profile.school.code if user.student_profile.school else ""
+        prefix = f"{code}-"
+        display_adm = adm[len(prefix):] if (code and adm.startswith(prefix)) else adm
+        if new_password.lower() in (adm.lower(), display_adm.lower()):
+            raise ValidationError({"newPassword": "New password cannot be your admission number."})
+
+    # Cannot be equal to teacher employee ID
+    if hasattr(user, "teacher_profile") and user.teacher_profile:
+        emp = user.teacher_profile.employee_id or ""
+        code = user.teacher_profile.school.code if user.teacher_profile.school else ""
+        prefix = f"{code}-"
+        display_emp = emp[len(prefix):] if (code and emp.startswith(prefix)) else emp
+        if new_password.lower() in (emp.lower(), display_emp.lower()):
+            raise ValidationError({"newPassword": "New password cannot be your employee ID."})
+
+    # Cannot be equal to user mobile
+    if user.mobile and new_password == user.mobile:
+        raise ValidationError({"newPassword": "New password cannot be your mobile number."})
 
     validate_password(new_password, user=user)
 
@@ -135,6 +208,143 @@ def change_user_password(user, old_password, new_password, request=None):
         changes={"must_change_password": False},
         request=request,
     )
+
+
+def reissue_credentials_for_school(actor, school, scope, class_id=None, password_mode="random", request=None):
+    """
+    Reissues credentials for users in the active school who were created_via='import'
+    AND still have must_change_password=True.
+    Scopes: 'students' | 'teachers' | 'parents' | 'class'.
+    Never touches parents or users who have already changed their passwords.
+    Returns: (sheet_buffer, reissued_count, skipped_count)
+    """
+    credentials_rows = []
+    skipped_count = 0
+
+    with transaction.atomic():
+        if scope in ("students", "class"):
+            qs = Student.objects.filter(school=school).select_related("user", "school")
+            if scope == "class":
+                if not class_id:
+                    raise ValidationError({"classId": "Class ID is required when scope is 'class'."})
+                try:
+                    s_class = SchoolClass.objects.get(pk=class_id, school=school)
+                except SchoolClass.DoesNotExist:
+                    raise ValidationError({"classId": "Class does not exist in your school."})
+                qs = qs.filter(class_section=s_class)
+
+            for student in qs.order_by("admission_number"):
+                u = student.user
+                sec = getattr(u, "security", None)
+                if sec and sec.created_via == "import" and sec.must_change_password:
+                    sg = StudentGuardian.objects.filter(student=student, is_primary=True).select_related("guardian").first()
+                    g_mobile = sg.guardian.mobile if (sg and sg.guardian) else ""
+                    disp_id = format_display_id(school.code, student.admission_number)
+                    temp_pw = generate_password_for_mode(
+                        password_mode,
+                        "student",
+                        display_id=disp_id,
+                        mobile=g_mobile,
+                        school_code=school.code,
+                    )
+                    u.set_password(temp_pw)
+                    u.save()
+                    sec.must_change_password = True
+                    sec.save()
+                    credentials_rows.append({
+                        "role": "Student",
+                        "name": u.get_full_name() or u.username,
+                        "identifier": disp_id,
+                        "username": u.username,
+                        "password": temp_pw,
+                        "notes": "Reissued credentials",
+                    })
+                else:
+                    skipped_count += 1
+
+        elif scope == "teachers":
+            qs = Teacher.objects.filter(school=school).select_related("user", "school").order_by("employee_id")
+            for teacher in qs:
+                u = teacher.user
+                sec = getattr(u, "security", None)
+                if sec and sec.created_via == "import" and sec.must_change_password:
+                    disp_id = format_display_id(school.code, teacher.employee_id)
+                    temp_pw = generate_password_for_mode(
+                        password_mode,
+                        "teacher",
+                        display_id=disp_id,
+                        mobile=u.mobile,
+                        school_code=school.code,
+                    )
+                    u.set_password(temp_pw)
+                    u.save()
+                    sec.must_change_password = True
+                    sec.save()
+                    credentials_rows.append({
+                        "role": "Teacher",
+                        "name": u.get_full_name() or u.username,
+                        "identifier": disp_id,
+                        "username": u.username,
+                        "password": temp_pw,
+                        "notes": "Reissued credentials",
+                    })
+                else:
+                    skipped_count += 1
+
+        elif scope == "parents":
+            guardians = Guardian.objects.filter(school=school, user__isnull=False).select_related("user").order_by("id")
+            seen_parent_ids = set()
+            for g in guardians:
+                u = g.user
+                if u.id in seen_parent_ids:
+                    continue
+                seen_parent_ids.add(u.id)
+                sec = getattr(u, "security", None)
+                if sec and sec.created_via == "import" and sec.must_change_password:
+                    temp_pw = generate_password_for_mode(
+                        password_mode,
+                        "parent",
+                        display_id=u.username,
+                        mobile=u.username,
+                        school_code=school.code,
+                    )
+                    u.set_password(temp_pw)
+                    u.save()
+                    sec.must_change_password = True
+                    sec.save()
+                    credentials_rows.append({
+                        "role": "Parent",
+                        "name": u.get_full_name() or g.full_name or u.username,
+                        "identifier": u.username,
+                        "username": u.username,
+                        "password": temp_pw,
+                        "notes": "Reissued credentials",
+                    })
+                else:
+                    skipped_count += 1
+        else:
+            raise ValidationError({"scope": f"Invalid scope '{scope}'. Allowed: students, teachers, parents, class."})
+
+        log_action(
+            actor=actor,
+            school=school,
+            action="credentials.reissue",
+            changes={
+                "scope": scope,
+                "class_id": class_id,
+                "reissued_count": len(credentials_rows),
+                "skipped_count": skipped_count,
+                "password_mode": password_mode,
+            },
+            request=request,
+        )
+
+    sheet_buffer = build_credentials_sheet(
+        credentials_rows=credentials_rows,
+        school_name=school.name,
+        sheet_title=f"Reissued {scope.capitalize()}",
+    )
+    return sheet_buffer, len(credentials_rows), skipped_count
 
 
 def build_credentials_sheet(credentials_rows, school_name="School", sheet_title="Credentials"):

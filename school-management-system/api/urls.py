@@ -25,6 +25,7 @@ urlpatterns = [
     path("schools/", views.schools, name="api_schools"),
     path("schools/<int:pk>/", views.school_detail, name="api_school_detail"),
     path("dashboard/stats/", views.dashboard_stats, name="api_dashboard_stats"),
+    path("dashboard/summary/", views.dashboard_summary, name="api_dashboard_summary"),
 
     # Existing Academic endpoints (retained for backward compatibility)
     path("academics/classes/", views.classes, name="api_classes"),
@@ -56,6 +57,7 @@ urlpatterns = [
 
     # Wave 1: Academic Year & Audit
     path("academic-years/", views_ay.academic_years, name="api_academic_years"),
+    path("academic-years/<int:pk>/set-current/", views_ay.academic_year_set_current, name="api_academic_year_set_current"),
     path("audit/", views_audit.audit_logs, name="api_audit_logs"),
 
     # Wave 1: Guardians
@@ -89,6 +91,7 @@ urlpatterns = [
 
     # Wave 2: Step 3 - Credentials & Security
     path("credentials/reset-password/", views_credentials.principal_reset_password, name="api_principal_reset_password"),
+    path("credentials/reissue/", views_credentials.reissue_credentials_view, name="api_credentials_reissue"),
     path("auth/change-password/", views_credentials.change_password, name="api_change_password"),
 
     # Wave 2: Step 4 - Importers (Templates, Preview, Confirm)
@@ -100,6 +103,8 @@ urlpatterns = [
     # Wave 2: Step 5 - Teacher Permissions & Assignments
     path("teachers/<int:teacher_id>/permissions/", views_ta.teacher_permissions_view, name="api_teacher_permissions"),
     path("classes/<int:class_id>/subject-teachers/", views_ta.class_subject_teachers_view, name="api_class_subject_teachers"),
+    path("classes/<int:class_id>/subject-teachers/<int:mapping_id>/", views.class_subject_teacher_delete_view, name="api_class_subject_teacher_delete"),
+    path("teacher/my-classes/", views.teacher_my_classes, name="api_teacher_my_classes"),
 
     # Wave 2: Step 6 - Syllabus Management
     path("subjects/<int:subject_id>/syllabus/", views_syll.subject_syllabus_view, name="api_subject_syllabus"),

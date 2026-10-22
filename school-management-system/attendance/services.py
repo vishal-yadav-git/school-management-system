@@ -122,12 +122,17 @@ def get_class_attendance_roster(school_class, date=None):
             record_map[r.student_id] = {"status": r.status, "remark": r.remark}
 
     students_data = []
+    school_code = getattr(school_class.school, "code", "")
+    prefix = f"{school_code}-" if school_code else ""
     for s in school_class.students.select_related("user").order_by("admission_number"):
         rec = record_map.get(s.id, {"status": "present", "remark": ""})
+        adm_no = s.admission_number or ""
+        display_adm = adm_no[len(prefix):] if prefix and adm_no.startswith(prefix) else adm_no
         students_data.append({
             "studentId": s.id,
             "name": s.user.get_full_name() or s.user.username,
-            "admissionNumber": s.admission_number,
+            "admissionNumber": adm_no,
+            "displayAdmissionNumber": display_adm,
             "status": rec["status"],
             "remark": rec["remark"],
         })
